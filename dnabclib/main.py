@@ -4,8 +4,7 @@ import os
 
 from .writer import FastaWriter, PairedFastqWriter
 from .sample import Sample
-from .seqfile import IndexFastqSequenceFile
-from .seqfile import NoIndexFastqSequenceFile
+from .seqfile import SequenceFile
 from .assigner import BarcodeAssigner
 from .version import __version__
 
@@ -53,19 +52,22 @@ def main(argv=None):
     p = argparse.ArgumentParser()
     # Input
     p.add_argument(
-        "--forward-reads", required=True,
-        type=argparse.FileType("r"),
+        "--forward-reads", required=True, type=argparse.FileType("r"),
         help="Forward reads file (FASTQ format)")
     p.add_argument(
         "--reverse-reads", required=True,
         type=argparse.FileType("r"),
         help="Reverse reads file (FASTQ format)")
     p.add_argument(
-        "--index-reads",
-        type=argparse.FileType("r"), help=(
+        "--index-reads", type=argparse.FileType("r"), help=(
             "Index reads file (FASTQ format). If this file is not provided, "
             "the index reads will be taken from the description lines in the "
             "forward reads file."))
+    p.add_argument(
+        "--reverse-index-reads", type=argparse.FileType("r"), help=(
+            "Index reads file (FASTQ format). If this file is provided, "
+            "the forward and reverse index reads will be concatenated before "
+            "comparison to the barcode sequences."))
     p.add_argument(
         "--barcode-file", required=True,
         help="Barcode information file",
@@ -82,6 +84,9 @@ def main(argv=None):
     p.add_argument("--config-file",
         type=argparse.FileType("r"),
         help="Configuration file (JSON format)")
+    p.add_argument(
+        "--revcomp", action="store_true",
+        help="Reverse complement barcode sequences.")
     args = p.parse_args(argv)
 
     config = get_config(args.config_file)
@@ -93,15 +98,10 @@ def main(argv=None):
        #p.error("Output directory already exists")
        os.mkdir(args.output_dir)
     writer = writer_cls(args.output_dir)
-
-    if args.index_reads is None:
-        seq_file = NoIndexFastqSequenceFile(
-            args.forward_reads, args.reverse_reads)
-        assigner = BarcodeAssigner(samples, revcomp=False)
-    else:
-        seq_file = IndexFastqSequenceFile(
-            args.forward_reads, args.reverse_reads, args.index_reads)
-        assigner = BarcodeAssigner(samples, revcomp=True)
+    assigner = BarcodeAssigner(samples, revcomp=args.revcomp)
+    seq_file = SequenceFile(
+        args.forward_reads, args.reverse_reads, args.index_reads,
+        args.reverse_index_reads)
 
     summary_data = seq_file.demultiplex(assigner, writer)
     save_summary(args.summary_file, config, summary_data)
