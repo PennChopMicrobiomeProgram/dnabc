@@ -75,6 +75,7 @@ class FastqDemultiplexTests(unittest.TestCase):
             "--barcode-file", self.barcode_fp,
             "--output-dir", self.output_dir,
             "--summary-file", self.summary_fp,
+            "--revcomp",
             ])
         with open(self.summary_fp) as f:
             res = json.load(f)

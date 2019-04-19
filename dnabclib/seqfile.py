@@ -1,5 +1,16 @@
 import itertools
 
+
+# Factory function for SequenceFile classes
+def SequenceFile(fwd, rev, fwd_idx=None, rev_idx=None):
+    if fwd_idx and rev_idx:
+        return DualIndexFastqSequenceFile(fwd, rev, fwd_idx, rev_idx)
+    elif fwd_idx:
+        return IndexFastqSequenceFile(fwd, rev, fwd_idx)
+    else:
+        return NoIndexFastqSequenceFile(fwd, rev)
+
+
 class IndexFastqSequenceFile(object):
     """Illumina data, 3 file format: forward, reverse, index.
 
@@ -16,7 +27,31 @@ class IndexFastqSequenceFile(object):
         fwds = (FastqRead(x) for x in parse_fastq(self.forward_file))
         revs = (FastqRead(x) for x in parse_fastq(self.reverse_file))
         for idx, fwd, rev in zip(idxs, fwds, revs):
-            sample = assigner.assign(idx.seq)
+            bc = idx.seq
+            sample = assigner.assign(bc)
+            writer.write((fwd, rev), sample)
+        return assigner.read_counts
+
+
+class DualIndexFastqSequenceFile(object):
+    """Illumina data, 4 file format: forward, reverse, fwd index, rev index.
+
+    This format is used by the MiSeq
+    """
+    def __init__(self, fwd, rev, fwd_idx, rev_idx):
+        self.forward_file = fwd
+        self.reverse_file = rev
+        self.forward_index_file = fwd_idx
+        self.reverse_index_file = rev_idx
+
+    def demultiplex(self, assigner, writer):
+        fwd_idxs = (FastqRead(x) for x in parse_fastq(self.forward_index_file))
+        rev_idxs = (FastqRead(x) for x in parse_fastq(self.reverse_index_file))
+        fwds = (FastqRead(x) for x in parse_fastq(self.forward_file))
+        revs = (FastqRead(x) for x in parse_fastq(self.reverse_file))
+        for fidx, ridx, fwd, rev in zip(fwd_idxs, rev_idxs, fwds, revs):
+            bc = fidx.seq + ridx.seq
+            sample = assigner.assign(bc)
             writer.write((fwd, rev), sample)
         return assigner.read_counts
 
@@ -35,8 +70,8 @@ class NoIndexFastqSequenceFile(object):
         fwds = (FastqRead(x) for x in parse_fastq(self.forward_file))
         revs = (FastqRead(x) for x in parse_fastq(self.reverse_file))
         for fwd, rev in zip(fwds, revs):
-            barcode_seq = self._parse_barcode(fwd.desc)
-            sample = assigner.assign(barcode_seq)
+            bc = self._parse_barcode(fwd.desc)
+            sample = assigner.assign(bc)
             writer.write((fwd, rev), sample)
         return assigner.read_counts
 
@@ -51,7 +86,7 @@ class NoIndexFastqSequenceFile(object):
         filtered>:<control number>:<barcode sequence>
         """
         # We simply grab anything past the final colon.
-        # Newlines were removed by the parsing function.
+        # Newlines were removed by the FASTQ parsing function.
         _, _, barcode_seq = desc.rpartition(":")
         barcode_seq = barcode_seq.replace("+", "")
         barcode_seq = barcode_seq.replace("-", "")
@@ -62,6 +97,8 @@ class FastqRead(object):
     def __init__(self, read):
         self.desc, self.seq, self.qual = read
 
+    def as_tuple(self):
+        return (self.desc, self.seq, self.qual)
 
 def _grouper(iterable, n):
     "Collect data into fixed-length chunks or blocks"
