@@ -4,9 +4,11 @@ import itertools
 class BarcodeAssigner(object):
     def __init__(self, samples, mismatches=0, revcomp=True):
         self.samples = samples
-        if mismatches not in [0]:
+        allowed_mismatches = [0, 1, 2]
+        if mismatches not in allowed_mismatches:
             raise ValueError(
-                "Only 0 mismatches allowed (got %s)" % mismatches)
+                "Only %s mismatches allowed (got %s)" % (
+                    allowed_mismatches, mismatches))
         self.mismatches = mismatches
         self.revcomp = revcomp
         # Sample names assumed to be unique after validating input data
