@@ -87,6 +87,11 @@ def main(argv=None):
     p.add_argument(
         "--revcomp", action="store_true",
         help="Reverse complement barcode sequences.")
+    p.add_argument(
+        "--mismatches", type=int, default = 0,
+        choices=BarcodeAssigner.allowed_mismatches, help=(
+            "Maximum number of mismatches in barcode sequence "
+            "(Default: %(default)s)"))
     args = p.parse_args(argv)
 
     config = get_config(args.config_file)
@@ -98,7 +103,8 @@ def main(argv=None):
        #p.error("Output directory already exists")
        os.mkdir(args.output_dir)
     writer = writer_cls(args.output_dir)
-    assigner = BarcodeAssigner(samples, revcomp=args.revcomp)
+    assigner = BarcodeAssigner(
+        samples, mismatches=args.mismatches, revcomp=args.revcomp)
     seq_file = SequenceFile(
         args.forward_reads, args.reverse_reads, args.index_reads,
         args.reverse_index_reads)
