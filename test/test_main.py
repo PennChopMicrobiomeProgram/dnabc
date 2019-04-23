@@ -5,26 +5,8 @@ import tempfile
 import unittest
 
 from dnabclib.main import (
-    main, get_config, get_sample_names_main,
+    main, get_sample_names_main,
 )
-
-
-class ConfigTests(unittest.TestCase):
-    def setUp(self):
-        self.temp_home_dir = tempfile.mkdtemp()
-        self._old_home_dir = os.environ['HOME']
-        os.environ['HOME'] = self.temp_home_dir
-
-    def tearDown(self):
-        shutil.rmtree(self.temp_home_dir)
-        os.environ['HOME'] = self._old_home_dir
-
-    def test_default_config_locataion(self):
-        """Config file in user home dir should be read and used"""
-        with open(os.path.join(self.temp_home_dir, ".dnabc.json"), "w") as f:
-            f.write('{"output_format": "SOMECRAZYVALUE"}')
-        config = get_config(None)
-        self.assertEqual(config["output_format"], u"SOMECRAZYVALUE")
 
 
 class FastqDemultiplexTests(unittest.TestCase):
@@ -74,12 +56,13 @@ class FastqDemultiplexTests(unittest.TestCase):
             "--index-reads", self.index_fp,
             "--barcode-file", self.barcode_fp,
             "--output-dir", self.output_dir,
-            "--summary-file", self.summary_fp,
             "--revcomp",
             ])
-        with open(self.summary_fp) as f:
-            res = json.load(f)
-            self.assertEqual(res["data"], {"SampleA": 1, "SampleB": 1, "unassigned":1})
+        self.assertEqual(
+            set(os.listdir(self.output_dir)), set((
+                "SampleA_R1.fastq", "SampleA_R2.fastq",
+                "SampleB_R1.fastq", "SampleB_R2.fastq",
+            )))
 
 
 class SampleNameTests(unittest.TestCase):

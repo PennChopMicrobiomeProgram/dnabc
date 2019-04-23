@@ -2,16 +2,10 @@ import argparse
 import json
 import os
 
-from .writer import FastaWriter, PairedFastqWriter
+from .writer import PairedFastqWriter
 from .sample import Sample
 from .seqfile import SequenceFile
 from .assigner import BarcodeAssigner
-from .version import __version__
-
-writers = {
-    "fastq": PairedFastqWriter,
-    "fasta": FastaWriter,
-}
 
 
 def get_sample_names_main(argv=None):
@@ -32,31 +26,16 @@ def get_sample_names_main(argv=None):
         args.output_file.write("%s\n" % s.name)
 
 
-def get_config(user_config_file):
-    config = {
-        "output_format": "fastq"
-    }
-
-    if user_config_file is None:
-        default_user_config_fp = os.path.expanduser("~/.dnabc.json")
-        if os.path.exists(default_user_config_fp):
-            user_config_file = open(default_user_config_fp)
-
-    if user_config_file is not None:
-        user_config = json.load(user_config_file)
-        config.update(user_config)
-    return config
-
-
 def main(argv=None):
     p = argparse.ArgumentParser()
-    # Input
+    p.add_argument(
+        "--barcode-file", required=True, type=argparse.FileType("r"),
+        help="Barcode information file")
     p.add_argument(
         "--forward-reads", required=True, type=argparse.FileType("r"),
         help="Forward reads file (FASTQ format)")
     p.add_argument(
-        "--reverse-reads", required=True,
-        type=argparse.FileType("r"),
+        "--reverse-reads", required=True, type=argparse.FileType("r"),
         help="Reverse reads file (FASTQ format)")
     p.add_argument(
         "--index-reads", type=argparse.FileType("r"), help=(
@@ -69,55 +48,27 @@ def main(argv=None):
             "the forward and reverse index reads will be concatenated before "
             "comparison to the barcode sequences."))
     p.add_argument(
-        "--barcode-file", required=True,
-        help="Barcode information file",
-        type=argparse.FileType("r"))
-    # Output
-    p.add_argument(
-        "--output-dir", required=True,
+        "--output-dir", default="fastq_data",
         help="Output sequence data directory")
-    p.add_argument(
-        "--summary-file", required=True,
-        type=argparse.FileType("w"),
-        help="Summary filepath")
-    # Config
-    p.add_argument("--config-file",
-        type=argparse.FileType("r"),
-        help="Configuration file (JSON format)")
     p.add_argument(
         "--revcomp", action="store_true",
         help="Reverse complement barcode sequences.")
     p.add_argument(
-        "--mismatches", type=int, default = 0,
+        "--mismatches", type=int, default=0,
         choices=BarcodeAssigner.allowed_mismatches, help=(
             "Maximum number of mismatches in barcode sequence "
-            "(Default: %(default)s)"))
+            "(default: %(default)s)"))
     args = p.parse_args(argv)
-
-    config = get_config(args.config_file)
 
     samples = list(Sample.load(args.barcode_file))
 
-    writer_cls = writers[config["output_format"]]
     if not os.path.exists(args.output_dir):
-       #p.error("Output directory already exists")
        os.mkdir(args.output_dir)
-    writer = writer_cls(args.output_dir)
+
+    writer = PairedFastqWriter(args.output_dir)
     assigner = BarcodeAssigner(
         samples, mismatches=args.mismatches, revcomp=args.revcomp)
     seq_file = SequenceFile(
         args.forward_reads, args.reverse_reads, args.index_reads,
         args.reverse_index_reads)
-
-    summary_data = seq_file.demultiplex(assigner, writer)
-    save_summary(args.summary_file, config, summary_data)
-
-
-def save_summary(f, config, data):
-    result = {
-        "program": "dnabc",
-        "version": __version__,
-        "config": config,
-        "data": data,
-        }
-    json.dump(result, f)
+    seq_file.demultiplex(assigner, writer)
