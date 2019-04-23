@@ -30,13 +30,13 @@ def main(argv=None):
     p = argparse.ArgumentParser()
     p.add_argument(
         "--barcode-file", required=True, type=argparse.FileType("r"),
-        help="Barcode information file")
+        help="Barcode information file (required)")
     p.add_argument(
         "--forward-reads", required=True, type=argparse.FileType("r"),
-        help="Forward reads file (FASTQ format)")
+        help="Forward reads file (FASTQ format, required)")
     p.add_argument(
         "--reverse-reads", required=True, type=argparse.FileType("r"),
-        help="Reverse reads file (FASTQ format)")
+        help="Reverse reads file (FASTQ format, required)")
     p.add_argument(
         "--index-reads", type=argparse.FileType("r"), help=(
             "Index reads file (FASTQ format). If this file is not provided, "
@@ -49,10 +49,10 @@ def main(argv=None):
             "comparison to the barcode sequences."))
     p.add_argument(
         "--output-dir", default="fastq_data",
-        help="Output sequence data directory")
+        help="Output sequence data directory (default: %(default)s)")
     p.add_argument(
         "--revcomp", action="store_true",
-        help="Reverse complement barcode sequences.")
+        help="Reverse complement barcode sequences")
     p.add_argument(
         "--mismatches", type=int, default=0,
         choices=BarcodeAssigner.allowed_mismatches, help=(
