@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import argparse
 import itertools
 
@@ -66,5 +65,3 @@ def main(argv=None):
     args.reads.close()
     args.output.close()
 
-if __name__=="__main__":
-    main()

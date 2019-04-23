@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import csv
 import argparse
 
@@ -28,6 +27,3 @@ def main(argv=None):
             w.writerow([row[2].replace(" ",""), row[4].replace("-","")])
     args.sample_sheet.close()
     args.output.close()
-
-if __name__=="__main__":
-    main()
