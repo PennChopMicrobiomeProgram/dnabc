@@ -81,9 +81,7 @@ class NoIndexFastqSequenceFile(object):
 
         According to the bcl2fastq manual, sequence identifier format is:
 
-        @<instrument>:<run number>:<flowcell
-        ID>:<lane>:<tile>:<x-pos>:<y-pos> <read>:<is
-        filtered>:<control number>:<barcode sequence>
+        @<instrument>:<run number>:<flowcell ID>:<lane>:<tile>:<x-pos>:<y-pos> <read>:<is filtered>:<control number>:<barcode sequence>
         """
         # We simply grab anything past the final colon.
         # Newlines were removed by the FASTQ parsing function.
