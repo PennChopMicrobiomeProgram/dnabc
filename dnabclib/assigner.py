@@ -45,7 +45,7 @@ class BarcodeAssigner(object):
         # If the number of mismatches is set to 0, there will be no
         # error barcodes. Immediately stop the iteration.
         if self.mismatches == 0:
-            raise StopIteration
+            return
         # Each item in idx_sets is a set of indices where mismatches
         # should occur.
         idx_sets = itertools.combinations(range(len(barcode)), self.mismatches)
@@ -61,7 +61,7 @@ class BarcodeAssigner(object):
             # particular set of positions
             for error_bc in deambiguate(bc):
                 yield error_bc
-        
+
     def assign(self, seq):
         sample = self._barcodes.get(seq)
         if sample is not None:
