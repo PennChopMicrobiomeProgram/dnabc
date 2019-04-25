@@ -58,6 +58,9 @@ def main(argv=None):
         choices=BarcodeAssigner.allowed_mismatches, help=(
             "Maximum number of mismatches in barcode sequence "
             "(default: %(default)s)"))
+    p.add_argument(
+        "--manifest-file", type=argparse.FileType("w"), help=(
+            "Write manifest file for QIIME2"))
     args = p.parse_args(argv)
 
     samples = list(Sample.load(args.barcode_file))
@@ -72,3 +75,6 @@ def main(argv=None):
         args.forward_reads, args.reverse_reads, args.index_reads,
         args.reverse_index_reads)
     seq_file.demultiplex(assigner, writer)
+
+    if args.manifest_file:
+        writer.write_qiime2_manifest(args.manifest_file)

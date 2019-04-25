@@ -57,6 +57,21 @@ class FastqWriterTests(unittest.TestCase):
 
         self.assertFalse(os.path.exists(w._get_output_fp(s2)))
 
+        f = MockFile()
+        w.write_qiime2_manifest(f)
+        self.assertEqual(f.contents, [
+            "sample-id,absolute-filepath,direction\n",
+            "h56,{0},forward\n".format(fp),
+        ])
+
+
+class MockFile:
+    def __init__(self):
+        self.contents = []
+
+    def write(self, x):
+        self.contents.append(x)
+
 
 class PairedFastqWriterTests(unittest.TestCase):
     def setUp(self):
@@ -91,6 +106,14 @@ class PairedFastqWriterTests(unittest.TestCase):
 
         self.assertFalse(any(
             os.path.exists(fp) for fp in w._get_output_fp(s2)))
+
+        f = MockFile()
+        w.write_qiime2_manifest(f)
+        self.assertEqual(f.contents, [
+            "sample-id,absolute-filepath,direction\n",
+            "ghj,{0},forward\n".format(fp1),
+            "ghj,{0},reverse\n".format(fp2),
+        ])
 
 
 if __name__ == '__main__':
