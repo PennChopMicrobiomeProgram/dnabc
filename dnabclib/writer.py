@@ -30,6 +30,11 @@ class _SequenceWriter(object):
             fp1 = os.path.abspath(f1.name)
             f.write("{0},{1},forward\n".format(sample.name, fp1))
 
+    def write_read_counts(self, f, read_counts):
+        f.write("SampleID\tNumReads\n")
+        for sample_name, n in read_counts.items():
+            f.write("{0}\t{1}\n".format(sample_name, n))
+
     def _get_output_file(self, sample):
         f = self._open_files.get(sample)
         if f is None:
