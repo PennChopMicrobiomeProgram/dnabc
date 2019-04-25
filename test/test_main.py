@@ -46,6 +46,7 @@ class FastqDemultiplexTests(unittest.TestCase):
         self.output_dir = os.path.join(self.temp_dir, "output")
         self.summary_fp = os.path.join(self.temp_dir, "summary.json")
         self.manifest_fp = os.path.join(self.temp_dir, "manifest.csv")
+        self.total_reads_fp = os.path.join(self.temp_dir, "read_counts.tsv")
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
@@ -58,6 +59,7 @@ class FastqDemultiplexTests(unittest.TestCase):
             "--barcode-file", self.barcode_fp,
             "--output-dir", self.output_dir,
             "--manifest-file", self.manifest_fp,
+            "--total-reads-file", self.total_reads_fp,
             "--revcomp",
             ])
         self.assertEqual(
@@ -71,6 +73,12 @@ class FastqDemultiplexTests(unittest.TestCase):
                 sample_id, fp, direction = line.split(",", 3)
                 self.assertIn(direction, ["forward\n", "reverse\n"])
                 self.assertIn(sample_id, ["SampleA", "SampleB"])
+
+        with open(self.total_reads_fp) as f:
+            self.assertEqual(next(f), "SampleID\tNumReads\n")
+            self.assertEqual(next(f), "SampleA\t1\n")
+            self.assertEqual(next(f), "SampleB\t1\n")
+            self.assertEqual(next(f), "unassigned\t1\n")
 
 
 class SampleNameTests(unittest.TestCase):

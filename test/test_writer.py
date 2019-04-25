@@ -64,6 +64,12 @@ class FastqWriterTests(unittest.TestCase):
             "h56,{0},forward\n".format(fp),
         ])
 
+        f2 = MockFile()
+        w.write_read_counts(f2, {"s1": 365})
+        self.assertEqual(f2.contents, [
+            "SampleID\tNumReads\n",
+            "s1\t365\n"
+        ])
 
 class MockFile:
     def __init__(self):

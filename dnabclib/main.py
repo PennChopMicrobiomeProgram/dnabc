@@ -61,6 +61,9 @@ def main(argv=None):
     p.add_argument(
         "--manifest-file", type=argparse.FileType("w"), help=(
             "Write manifest file for QIIME2"))
+    p.add_argument(
+        "--total-reads-file", type=argparse.FileType("w"), help=(
+            "Write TSV table of total read counts"))
     args = p.parse_args(argv)
 
     samples = list(Sample.load(args.barcode_file))
@@ -78,3 +81,5 @@ def main(argv=None):
 
     if args.manifest_file:
         writer.write_qiime2_manifest(args.manifest_file)
+    if args.total_reads_file:
+        writer.write_read_counts(args.total_reads_file, assigner.read_counts)
