@@ -1,4 +1,5 @@
 import argparse
+import gzip
 import json
 import os
 
@@ -51,17 +52,31 @@ def main(argv=None):
 
     samples = list(Sample.load(args.barcode_file))
 
+    r1 = maybe_gzip(args.r1_fastq)
+    r2 = maybe_gzip(args.r2_fastq)
+    i1 = maybe_gzip(args.i1_fastq) if (args.i1_fastq is not None) else None
+    i2 = maybe_gzip(args.i2_fastq) if (args.i2_fastq is not None) else None
+
     if not os.path.exists(args.output_dir):
        os.mkdir(args.output_dir)
 
     writer = PairedFastqWriter(args.output_dir)
     assigner = BarcodeAssigner(
         samples, mismatches=args.mismatches, revcomp=args.revcomp)
-    seq_file = SequenceFile(
-        args.r1_fastq, args.r2_fastq, args.i1_fastq, args.i2_fastq)
+    seq_file = SequenceFile(r1, r2, i1, i2)
     seq_file.demultiplex(assigner, writer)
 
     if args.manifest_file:
         writer.write_qiime2_manifest(args.manifest_file)
     if args.total_reads_file:
         writer.write_read_counts(args.total_reads_file, assigner.read_counts)
+
+
+def maybe_gzip(f):
+    fname = f.name
+    if fname.endswith(".gz"):
+        # Seems to be fewer problems if I just close the file obj and
+        # re-open with gzip
+        f.close()
+        return gzip.open(fname, "rt")
+    return f

@@ -1,6 +1,6 @@
-import json
 import os
 import shutil
+import subprocess
 import tempfile
 import unittest
 
@@ -43,7 +43,6 @@ class FastqDemultiplexTests(unittest.TestCase):
                 "SampleB\tACGTACGT\n")
 
         self.output_dir = os.path.join(self.temp_dir, "output")
-        self.summary_fp = os.path.join(self.temp_dir, "summary.json")
         self.manifest_fp = os.path.join(self.temp_dir, "manifest.csv")
         self.total_reads_fp = os.path.join(self.temp_dir, "read_counts.tsv")
 
@@ -76,6 +75,25 @@ class FastqDemultiplexTests(unittest.TestCase):
             self.assertEqual(next(f), "SampleA\t1\n")
             self.assertEqual(next(f), "SampleB\t1\n")
             self.assertEqual(next(f), "unassigned\t1\n")
+
+    def test_gzipped(self):
+        forward_gzip_fp = self.forward_fp + ".gz"
+        subprocess.check_call(["gzip", self.forward_fp])
+        reverse_gzip_fp = self.reverse_fp + ".gz"
+        subprocess.check_call(["gzip", self.reverse_fp])
+        index_gzip_fp = self.index_fp + ".gz"
+        subprocess.check_call(["gzip", self.index_fp])
+        main([
+            self.barcode_fp, forward_gzip_fp, reverse_gzip_fp,
+            "--i1-fastq", index_gzip_fp,
+            "--output-dir", self.output_dir,
+            "--revcomp",
+            ])
+        self.assertEqual(
+            set(os.listdir(self.output_dir)), set((
+                "SampleA_R1.fastq", "SampleA_R2.fastq",
+                "SampleB_R1.fastq", "SampleB_R2.fastq",
+            )))
 
 
 if __name__ == "__main__":
