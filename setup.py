@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='dnabc',
-    version="0.0.4",
+    version="0.0.5",
     description='Demultiplex pooled DNA sequencing data',
     author='Kyle Bittinger',
     author_email='kylebittinger@gmail.com',
