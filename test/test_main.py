@@ -45,6 +45,7 @@ class FastqDemultiplexTests(unittest.TestCase):
 
         self.output_dir = os.path.join(self.temp_dir, "output")
         self.summary_fp = os.path.join(self.temp_dir, "summary.json")
+        self.manifest_fp = os.path.join(self.temp_dir, "manifest.csv")
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
@@ -56,6 +57,7 @@ class FastqDemultiplexTests(unittest.TestCase):
             "--index-reads", self.index_fp,
             "--barcode-file", self.barcode_fp,
             "--output-dir", self.output_dir,
+            "--manifest-file", self.manifest_fp,
             "--revcomp",
             ])
         self.assertEqual(
@@ -63,6 +65,12 @@ class FastqDemultiplexTests(unittest.TestCase):
                 "SampleA_R1.fastq", "SampleA_R2.fastq",
                 "SampleB_R1.fastq", "SampleB_R2.fastq",
             )))
+        with open(self.manifest_fp) as f:
+            self.assertEqual(next(f), "sample-id,absolute-filepath,direction\n")
+            for line in f:
+                sample_id, fp, direction = line.split(",", 3)
+                self.assertIn(direction, ["forward\n", "reverse\n"])
+                self.assertIn(sample_id, ["SampleA", "SampleB"])
 
 
 class SampleNameTests(unittest.TestCase):

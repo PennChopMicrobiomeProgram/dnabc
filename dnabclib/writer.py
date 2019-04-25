@@ -24,6 +24,12 @@ class _SequenceWriter(object):
     def set_sff_header(self, header):
         pass
 
+    def write_qiime2_manifest(self, f):
+        f.write("sample-id,absolute-filepath,direction\n")
+        for sample, f1 in self._open_files.items():
+            fp1 = os.path.abspath(f1.name)
+            f.write("{0},{1},forward\n".format(sample.name, fp1))
+
     def _get_output_file(self, sample):
         f = self._open_files.get(sample)
         if f is None:
@@ -78,6 +84,15 @@ class PairedFastqWriter(FastqWriter):
         r1, r2 = readpair
         super(PairedFastqWriter, self)._write_to_file(f1, r1)
         super(PairedFastqWriter, self)._write_to_file(f2, r2)
+
+    def write_qiime2_manifest(self, f):
+        f.write("sample-id,absolute-filepath,direction\n")
+        for sample, filepair in self._open_files.items():
+            f1, f2 = filepair
+            fp1 = os.path.abspath(f1.name)
+            f.write("{0},{1},forward\n".format(sample.name, fp1))
+            fp2 = os.path.abspath(f2.name)
+            f.write("{0},{1},reverse\n".format(sample.name, fp2))
 
     def close(self):
         for f1, f2 in self._open_files.values():
