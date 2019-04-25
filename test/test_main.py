@@ -4,9 +4,7 @@ import shutil
 import tempfile
 import unittest
 
-from dnabclib.main import (
-    main, get_sample_names_main,
-)
+from dnabclib.main import main
 
 
 class FastqDemultiplexTests(unittest.TestCase):
@@ -79,27 +77,6 @@ class FastqDemultiplexTests(unittest.TestCase):
             self.assertEqual(next(f), "SampleB\t1\n")
             self.assertEqual(next(f), "unassigned\t1\n")
 
-
-class SampleNameTests(unittest.TestCase):
-    def test_get_sample_names_main(self):
-        barcode_file = tempfile.NamedTemporaryFile()
-        barcode_file.write(
-            b"sample_name\tbarcode\n"
-            b"SampleA\tAAGGAAGG\n"
-            b"SampleB\tACGTACGT\n")
-        barcode_file.seek(0)
-
-        output_file = tempfile.NamedTemporaryFile()
-        
-        get_sample_names_main([
-            "--barcode-file", barcode_file.name,
-            "--output-file", output_file.name,
-        ])
-
-        output_file.seek(0)
-        observed_sample_names = output_file.read()
-
-        self.assertEqual(observed_sample_names, b"SampleA\nSampleB\n")
 
 if __name__ == "__main__":
     unittest.main()

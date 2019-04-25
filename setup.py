@@ -11,7 +11,6 @@ setuptools.setup(
     entry_points={
         'console_scripts': [
             'dnabc.py=dnabclib.main:main',
-            'get_sample_names.py=dnabclib.main:get_sample_names_main',
             'split_samplelanes.py=dnabclib.split_samplelanes:main',
         ],
     },

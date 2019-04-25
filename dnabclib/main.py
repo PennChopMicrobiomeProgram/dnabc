@@ -8,24 +8,6 @@ from .seqfile import SequenceFile
 from .assigner import BarcodeAssigner
 
 
-def get_sample_names_main(argv=None):
-    p = argparse.ArgumentParser()
-    p.add_argument(
-        "--barcode-file", required=True,
-        type=argparse.FileType("r"),
-        help="Barcode information file")
-    p.add_argument(
-        "--output-file", required=True,
-        type=argparse.FileType("w"),
-        help="Output file of sample names"
-    )
-    args = p.parse_args(argv)
-    
-    samples = Sample.load(args.barcode_file)
-    for s in samples:
-        args.output_file.write("%s\n" % s.name)
-
-
 def main(argv=None):
     p = argparse.ArgumentParser()
     p.add_argument(
