@@ -2,7 +2,7 @@ import os.path
 
  
 def _get_sample_fp(self, sample):
-    fn = "PCMP%s%s" % (sample.name, self.ext)
+    fn = "%s%s" % (sample.name, self.ext)
     return os.path.join(self.output_dir, fn)
 
 
@@ -20,9 +20,6 @@ class _SequenceWriter(object):
     def __init__(self, output_dir):
         self.output_dir = output_dir
         self._open_files = {}
-
-    def set_sff_header(self, header):
-        pass
 
     def write_qiime2_manifest(self, f):
         f.write("sample-id,absolute-filepath,direction\n")

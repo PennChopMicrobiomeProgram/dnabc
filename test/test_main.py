@@ -1,12 +1,10 @@
-import json
 import os
 import shutil
+import subprocess
 import tempfile
 import unittest
 
-from dnabclib.main import (
-    main, get_sample_names_main,
-)
+from dnabclib.main import main
 
 
 class FastqDemultiplexTests(unittest.TestCase):
@@ -37,14 +35,14 @@ class FastqDemultiplexTests(unittest.TestCase):
                 "@b\nGTNNNNNNNNNNNNNNNNNNN\n+\n#####################\n"
                 "@c\nACTAGACTACGCATCAGCATG\n+\nkjafd;;;hjfasd82AHG99\n")
 
-        self.barcode_fp = os.path.join(self.temp_dir, "manifest.txt")
+        self.barcode_fp = os.path.join(self.temp_dir, "barcodes.txt")
         with open(self.barcode_fp, "w") as f:
             f.write(
+                "sample_name\tbarcode_seq\n"
                 "SampleA\tAAGGAAGG\n"
                 "SampleB\tACGTACGT\n")
 
         self.output_dir = os.path.join(self.temp_dir, "output")
-        self.summary_fp = os.path.join(self.temp_dir, "summary.json")
         self.manifest_fp = os.path.join(self.temp_dir, "manifest.csv")
         self.total_reads_fp = os.path.join(self.temp_dir, "read_counts.tsv")
 
@@ -53,10 +51,8 @@ class FastqDemultiplexTests(unittest.TestCase):
 
     def test_regular(self):
         main([
-            "--forward-reads", self.forward_fp,
-            "--reverse-reads", self.reverse_fp,
-            "--index-reads", self.index_fp,
-            "--barcode-file", self.barcode_fp,
+            self.barcode_fp, self.forward_fp, self.reverse_fp,
+            "--i1-fastq", self.index_fp,
             "--output-dir", self.output_dir,
             "--manifest-file", self.manifest_fp,
             "--total-reads-file", self.total_reads_fp,
@@ -80,26 +76,25 @@ class FastqDemultiplexTests(unittest.TestCase):
             self.assertEqual(next(f), "SampleB\t1\n")
             self.assertEqual(next(f), "unassigned\t1\n")
 
+    def test_gzipped(self):
+        forward_gzip_fp = self.forward_fp + ".gz"
+        subprocess.check_call(["gzip", self.forward_fp])
+        reverse_gzip_fp = self.reverse_fp + ".gz"
+        subprocess.check_call(["gzip", self.reverse_fp])
+        index_gzip_fp = self.index_fp + ".gz"
+        subprocess.check_call(["gzip", self.index_fp])
+        main([
+            self.barcode_fp, forward_gzip_fp, reverse_gzip_fp,
+            "--i1-fastq", index_gzip_fp,
+            "--output-dir", self.output_dir,
+            "--revcomp",
+            ])
+        self.assertEqual(
+            set(os.listdir(self.output_dir)), set((
+                "SampleA_R1.fastq", "SampleA_R2.fastq",
+                "SampleB_R1.fastq", "SampleB_R2.fastq",
+            )))
 
-class SampleNameTests(unittest.TestCase):
-    def test_get_sample_names_main(self):
-        barcode_file = tempfile.NamedTemporaryFile()
-        barcode_file.write(
-            b"SampleA\tAAGGAAGG\n"
-            b"SampleB\tACGTACGT\n")
-        barcode_file.seek(0)
-
-        output_file = tempfile.NamedTemporaryFile()
-        
-        get_sample_names_main([
-            "--barcode-file", barcode_file.name,
-            "--output-file", output_file.name,
-        ])
-
-        output_file.seek(0)
-        observed_sample_names = output_file.read()
-
-        self.assertEqual(observed_sample_names, b"SampleA\nSampleB\n")
 
 if __name__ == "__main__":
     unittest.main()

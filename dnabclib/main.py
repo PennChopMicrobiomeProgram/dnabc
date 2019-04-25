@@ -1,4 +1,5 @@
 import argparse
+import gzip
 import json
 import os
 
@@ -8,47 +9,30 @@ from .seqfile import SequenceFile
 from .assigner import BarcodeAssigner
 
 
-def get_sample_names_main(argv=None):
-    p = argparse.ArgumentParser()
-    p.add_argument(
-        "--barcode-file", required=True,
-        type=argparse.FileType("r"),
-        help="Barcode information file")
-    p.add_argument(
-        "--output-file", required=True,
-        type=argparse.FileType("w"),
-        help="Output file of sample names"
-    )
-    args = p.parse_args(argv)
-    
-    samples = Sample.load(args.barcode_file)
-    for s in samples:
-        args.output_file.write("%s\n" % s.name)
-
-
 def main(argv=None):
     p = argparse.ArgumentParser()
     p.add_argument(
-        "--barcode-file", required=True, type=argparse.FileType("r"),
-        help="Barcode information file (required)")
+        "barcode_file", type=argparse.FileType("r"),
+        help="Barcode file (TSV format)")
     p.add_argument(
-        "--forward-reads", required=True, type=argparse.FileType("r"),
-        help="Forward reads file (FASTQ format, required)")
+        "r1_fastq", type=argparse.FileType("r"),
+        help="Forward reads FASTQ file")
     p.add_argument(
-        "--reverse-reads", required=True, type=argparse.FileType("r"),
-        help="Reverse reads file (FASTQ format, required)")
+        "r2_fastq", type=argparse.FileType("r"),
+        help="Reverse reads FASTQ file")
     p.add_argument(
-        "--index-reads", type=argparse.FileType("r"), help=(
-            "Index reads file (FASTQ format). If this file is not provided, "
-            "the index reads will be taken from the description lines in the "
+        "--i1-fastq", type=argparse.FileType("r"), help=(
+            "Forward index FASTQ file. If this file is not provided, the "
+            "index reads will be taken from the description lines in the "
             "forward reads file."))
     p.add_argument(
-        "--reverse-index-reads", type=argparse.FileType("r"), help=(
-            "Index reads file (FASTQ format). If this file is provided, "
-            "the forward and reverse index reads will be concatenated before "
-            "comparison to the barcode sequences."))
+        "--i2-fastq", type=argparse.FileType("r"), help=(
+            "Reverse index FASTQ file. If this file is provided, the "
+            "forward index file must be provided as well. The forward and "
+            "reverse index reads will be concatenated before comparison "
+            "to the barcode sequences."))
     p.add_argument(
-        "--output-dir", default="fastq_data",
+        "--output-dir", default="demultiplexed_fastq",
         help="Output sequence data directory (default: %(default)s)")
     p.add_argument(
         "--revcomp", action="store_true",
@@ -68,18 +52,31 @@ def main(argv=None):
 
     samples = list(Sample.load(args.barcode_file))
 
+    r1 = maybe_gzip(args.r1_fastq)
+    r2 = maybe_gzip(args.r2_fastq)
+    i1 = maybe_gzip(args.i1_fastq) if (args.i1_fastq is not None) else None
+    i2 = maybe_gzip(args.i2_fastq) if (args.i2_fastq is not None) else None
+
     if not os.path.exists(args.output_dir):
        os.mkdir(args.output_dir)
 
     writer = PairedFastqWriter(args.output_dir)
     assigner = BarcodeAssigner(
         samples, mismatches=args.mismatches, revcomp=args.revcomp)
-    seq_file = SequenceFile(
-        args.forward_reads, args.reverse_reads, args.index_reads,
-        args.reverse_index_reads)
+    seq_file = SequenceFile(r1, r2, i1, i2)
     seq_file.demultiplex(assigner, writer)
 
     if args.manifest_file:
         writer.write_qiime2_manifest(args.manifest_file)
     if args.total_reads_file:
         writer.write_read_counts(args.total_reads_file, assigner.read_counts)
+
+
+def maybe_gzip(f):
+    fname = f.name
+    if fname.endswith(".gz"):
+        # Seems to be fewer problems if I just close the file obj and
+        # re-open with gzip
+        f.close()
+        return gzip.open(fname, "rt")
+    return f
