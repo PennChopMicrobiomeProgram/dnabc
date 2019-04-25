@@ -14,4 +14,13 @@ setuptools.setup(
             'split_samplelanes.py=dnabclib.split_samplelanes:main',
         ],
     },
+    classifiers=[
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)',
+        'Operating System :: POSIX :: Linux',
+        'Operating System :: MacOS :: MacOS X',
+        'Programming Language :: Python :: 3',
+        'Topic :: Scientific/Engineering :: Bio-Informatics',
+    ],
+    license='GPLv2+',
 )
