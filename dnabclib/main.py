@@ -29,26 +29,27 @@ def get_sample_names_main(argv=None):
 def main(argv=None):
     p = argparse.ArgumentParser()
     p.add_argument(
-        "--barcode-file", required=True, type=argparse.FileType("r"),
-        help="Barcode information file (required)")
+        "barcode_file", type=argparse.FileType("r"),
+        help="Barcode file (TSV format)")
     p.add_argument(
-        "--forward-reads", required=True, type=argparse.FileType("r"),
-        help="Forward reads file (FASTQ format, required)")
+        "forward_fastq", type=argparse.FileType("r"),
+        help="Forward reads FASTQ file")
     p.add_argument(
-        "--reverse-reads", required=True, type=argparse.FileType("r"),
-        help="Reverse reads file (FASTQ format, required)")
+        "reverse_fastq", type=argparse.FileType("r"),
+        help="Reverse reads FASTQ file")
     p.add_argument(
-        "--index-reads", type=argparse.FileType("r"), help=(
-            "Index reads file (FASTQ format). If this file is not provided, "
-            "the index reads will be taken from the description lines in the "
+        "--i1-fastq", type=argparse.FileType("r"), help=(
+            "Forward index FASTQ file. If this file is not provided, the "
+            "index reads will be taken from the description lines in the "
             "forward reads file."))
     p.add_argument(
-        "--reverse-index-reads", type=argparse.FileType("r"), help=(
-            "Index reads file (FASTQ format). If this file is provided, "
-            "the forward and reverse index reads will be concatenated before "
-            "comparison to the barcode sequences."))
+        "--i2-fastq", type=argparse.FileType("r"), help=(
+            "Reverse index FASTQ file. If this file is provided, the "
+            "forward index file must be provided as well. The forward and "
+            "reverse index reads will be concatenated before comparison "
+            "to the barcode sequences."))
     p.add_argument(
-        "--output-dir", default="fastq_data",
+        "--output-dir", default="demultiplexed_fastq",
         help="Output sequence data directory (default: %(default)s)")
     p.add_argument(
         "--revcomp", action="store_true",
@@ -75,8 +76,7 @@ def main(argv=None):
     assigner = BarcodeAssigner(
         samples, mismatches=args.mismatches, revcomp=args.revcomp)
     seq_file = SequenceFile(
-        args.forward_reads, args.reverse_reads, args.index_reads,
-        args.reverse_index_reads)
+        args.forward_fastq, args.reverse_fastq, args.i1_fastq, args.i2_fastq)
     seq_file.demultiplex(assigner, writer)
 
     if args.manifest_file:

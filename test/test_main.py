@@ -53,10 +53,8 @@ class FastqDemultiplexTests(unittest.TestCase):
 
     def test_regular(self):
         main([
-            "--forward-reads", self.forward_fp,
-            "--reverse-reads", self.reverse_fp,
-            "--index-reads", self.index_fp,
-            "--barcode-file", self.barcode_fp,
+            self.barcode_fp, self.forward_fp, self.reverse_fp,
+            "--i1-fastq", self.index_fp,
             "--output-dir", self.output_dir,
             "--manifest-file", self.manifest_fp,
             "--total-reads-file", self.total_reads_fp,
