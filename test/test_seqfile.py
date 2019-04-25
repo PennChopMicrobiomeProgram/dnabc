@@ -1,8 +1,6 @@
 import collections
 from io import StringIO
 import os.path
-import shutil
-import tempfile
 import unittest
 
 from dnabclib.seqfile import (

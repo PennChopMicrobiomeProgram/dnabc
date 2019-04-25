@@ -2,7 +2,7 @@ import os.path
 
  
 def _get_sample_fp(self, sample):
-    fn = "PCMP%s%s" % (sample.name, self.ext)
+    fn = "%s%s" % (sample.name, self.ext)
     return os.path.join(self.output_dir, fn)
 
 

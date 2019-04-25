@@ -6,22 +6,30 @@ import unittest
 
 from dnabclib.writer import FastaWriter, FastqWriter, PairedFastqWriter
 
+MockFastaRead = namedtuple("Read", "desc seq")
+MockFastqRead = namedtuple("Read", "desc seq qual")
+MockSample = namedtuple("Sample", "name")
+class MockFile:
+    def __init__(self):
+        self.contents = []
+
+    def write(self, x):
+        self.contents.append(x)
+
 
 class FastaWriterTests(unittest.TestCase):
     def setUp(self):
         self.output_dir = tempfile.mkdtemp()
-        self.Sample = namedtuple("Sample", "name")
-        self.Read = namedtuple("Read", ["desc", "seq"])
 
     def tearDown(self):
         shutil.rmtree(self.output_dir)
     
     def test_write(self):
-        s1 = self.Sample("abc")
-        s2 = self.Sample("d.e")
+        s1 = MockSample("abc")
+        s2 = MockSample("d.e")
         w = FastaWriter(self.output_dir)
 
-        w.write(self.Read("Read0", "ACCTTGG"), s1)
+        w.write(MockFastaRead("Read0", "ACCTTGG"), s1)
         w.close()
 
         fp = w._get_output_fp(s1)
@@ -35,18 +43,16 @@ class FastaWriterTests(unittest.TestCase):
 class FastqWriterTests(unittest.TestCase):
     def setUp(self):
         self.output_dir = tempfile.mkdtemp()
-        self.Sample = namedtuple("Sample", "name")
-        self.Read = namedtuple("Read", "desc seq qual")
 
     def tearDown(self):
         shutil.rmtree(self.output_dir)
     
     def test_write(self):
-        s1 = self.Sample("h56")
-        s2 = self.Sample("123")
+        s1 = MockSample("h56")
+        s2 = MockSample("123")
         w = FastqWriter(self.output_dir)
 
-        w.write(self.Read("Read0", "ACCTTGG", "#######"), s1)
+        w.write(MockFastqRead("Read0", "ACCTTGG", "#######"), s1)
         w.close()
 
         fp = w._get_output_fp(s1)
@@ -71,31 +77,22 @@ class FastqWriterTests(unittest.TestCase):
             "s1\t365\n"
         ])
 
-class MockFile:
-    def __init__(self):
-        self.contents = []
-
-    def write(self, x):
-        self.contents.append(x)
-
 
 class PairedFastqWriterTests(unittest.TestCase):
     def setUp(self):
         self.output_dir = tempfile.mkdtemp()
-        self.Sample = namedtuple("Sample", "name")
-        self.Read = namedtuple("Read", "desc seq qual")
 
     def tearDown(self):
         shutil.rmtree(self.output_dir)
     
     def test_write(self):
-        s1 = self.Sample("ghj")
-        s2 = self.Sample("kl;")
+        s1 = MockSample("ghj")
+        s2 = MockSample("kl;")
         w = PairedFastqWriter(self.output_dir)
 
         readpair = (
-            self.Read("Read0", "ACCTTGG", "#######"),
-            self.Read("Read1", "GCTAGCT", ";342dfA"),
+            MockFastqRead("Read0", "ACCTTGG", "#######"),
+            MockFastqRead("Read1", "GCTAGCT", ";342dfA"),
             )
         w.write(readpair, s1)
         w.close()
