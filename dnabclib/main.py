@@ -14,10 +14,10 @@ def main(argv=None):
         "barcode_file", type=argparse.FileType("r"),
         help="Barcode file (TSV format)")
     p.add_argument(
-        "forward_fastq", type=argparse.FileType("r"),
+        "r1_fastq", type=argparse.FileType("r"),
         help="Forward reads FASTQ file")
     p.add_argument(
-        "reverse_fastq", type=argparse.FileType("r"),
+        "r2_fastq", type=argparse.FileType("r"),
         help="Reverse reads FASTQ file")
     p.add_argument(
         "--i1-fastq", type=argparse.FileType("r"), help=(
