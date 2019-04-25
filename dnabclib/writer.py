@@ -21,9 +21,6 @@ class _SequenceWriter(object):
         self.output_dir = output_dir
         self._open_files = {}
 
-    def set_sff_header(self, header):
-        pass
-
     def write_qiime2_manifest(self, f):
         f.write("sample-id,absolute-filepath,direction\n")
         for sample, f1 in self._open_files.items():
