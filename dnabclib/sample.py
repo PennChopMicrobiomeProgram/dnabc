@@ -37,10 +37,12 @@ def duplicates(xs):
 
 def parse_barcode_file(f):
     for n, line in enumerate(f):
-        if line.startswith("#"):
+        # Header line cannot be commented
+        if line.startswith("#") and (n > 0): 
             continue
         line = line.rstrip()
-        if line == "":
+        # Blank lines OK, but not in the header
+        if (line == "") and (n > 0):
             continue
         toks = line.split("\t")
         if len(toks) < 2:
@@ -48,6 +50,20 @@ def parse_barcode_file(f):
             raise ValueError(
                 "Not enough fields in barcode file (line %s): %s" % (
                     line_num, toks))
+        if n == 0:
+            barcode_colname = toks[1]
+            if all(c in "AGCT" for c in barcode_colname):
+                msg = (
+                    "Header line expected in barcode file.  Looking at the "
+                    "first line of the barcode file, we see that the second "
+                    "column contains a valid barcode sequence ({0}).  This "
+                    "indicates that (1) your file does not have a header "
+                    "line, or (2) the column header for barcodes is itself a "
+                    "valid barcode sequence.  Either way, this constitutes "
+                    "an error.")
+                raise ValueError(msg.format(barcode_colname))
+            # Done checking header, continue with next line
+            continue
         sample_id = toks[0]
         barcode = toks[1]
         yield sample_id, barcode

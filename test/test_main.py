@@ -37,9 +37,10 @@ class FastqDemultiplexTests(unittest.TestCase):
                 "@b\nGTNNNNNNNNNNNNNNNNNNN\n+\n#####################\n"
                 "@c\nACTAGACTACGCATCAGCATG\n+\nkjafd;;;hjfasd82AHG99\n")
 
-        self.barcode_fp = os.path.join(self.temp_dir, "manifest.txt")
+        self.barcode_fp = os.path.join(self.temp_dir, "barcodes.txt")
         with open(self.barcode_fp, "w") as f:
             f.write(
+                "sample_name\tbarcode_seq\n"
                 "SampleA\tAAGGAAGG\n"
                 "SampleB\tACGTACGT\n")
 
@@ -83,6 +84,7 @@ class SampleNameTests(unittest.TestCase):
     def test_get_sample_names_main(self):
         barcode_file = tempfile.NamedTemporaryFile()
         barcode_file.write(
+            b"sample_name\tbarcode\n"
             b"SampleA\tAAGGAAGG\n"
             b"SampleB\tACGTACGT\n")
         barcode_file.seek(0)
