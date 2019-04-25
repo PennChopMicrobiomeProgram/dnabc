@@ -58,7 +58,7 @@ def main(argv=None):
     assigner = BarcodeAssigner(
         samples, mismatches=args.mismatches, revcomp=args.revcomp)
     seq_file = SequenceFile(
-        args.forward_fastq, args.reverse_fastq, args.i1_fastq, args.i2_fastq)
+        args.r1_fastq, args.r2_fastq, args.i1_fastq, args.i2_fastq)
     seq_file.demultiplex(assigner, writer)
 
     if args.manifest_file:
