@@ -53,6 +53,7 @@ class FastqWriterTests(unittest.TestCase):
         w = FastqWriter(self.output_dir)
 
         w.write(MockFastqRead("Read0", "ACCTTGG", "#######"), s1)
+        w.write(MockFastqRead("Read1", "ACCCCGG", "#######"), None)
         w.close()
 
         fp = w._get_output_fp(s1)
@@ -71,10 +72,11 @@ class FastqWriterTests(unittest.TestCase):
         ])
 
         f2 = MockFile()
-        w.write_read_counts(f2, {"s1": 365})
+        w.write_read_counts(f2, {"s1": 1, "unassigned": 1})
         self.assertEqual(f2.contents, [
             "SampleID\tNumReads\n",
-            "s1\t365\n"
+            "s1\t1\n",
+            "unassigned\t1\n"
         ])
 
 
