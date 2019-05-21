@@ -1,28 +1,57 @@
-class Sample(object):
-    """Class representing one demultiplexable unit."""
-    def __init__(self, name, barcode):
-        self.name = name
-        self.barcode = barcode
-        if self.barcode is not None:
-            self.barcode = self.barcode.upper()
+import collections
 
-    @classmethod
-    def load(cls, f):
-        records = list(parse_barcode_file(f))
-        names, bcs = zip(*records)
 
-        dup_names = duplicates(names)
-        if dup_names:
-            raise ValueError("Duplicate sample names: %s" % dup_names)
+SampleBarcode = collections.namedtuple("SampleBarcode", ["name", "barcode"])
 
-        dup_bcs = duplicates(bcs)
-        if dup_bcs:
-            raise ValueError("Duplicate barcodes: %s" % dup_bcs)
 
-        if "unassigned" in names:
-            raise ValueError("A sample can not be called unassigned")
+def load_sample_barcodes(f):
+    """Load SampleBarcode objects from barcode file."""
+    args = []
+    for name, nonstandard_barcode in parse_barcode_file(f):
+        barcode = standardize_barcode(nonstandard_barcode)
+        args.append((name, barcode))
 
-        return [cls(name, bc) for name, bc in records]
+    names, bcs = zip(*args)
+    check_sample_names(names)
+    check_barcodes(bcs)
+
+    return [SampleBarcode(name, bc) for name, bc in args]
+
+
+def check_sample_names(names):
+    dup_names = duplicates(names)
+    if dup_names:
+        raise ValueError("Duplicate sample names: {0}".format(dup_names))
+
+    if "unassigned" in names:
+        raise ValueError("A sample can not be called unassigned")
+
+
+def check_barcodes(barcodes):
+    invalid_bcs = [bc for bc in barcodes if not is_valid_barcode(bc)]
+    if invalid_bcs:
+        raise ValueError("Invalid barcodes: {0}".format(invalid_bcs))
+
+    dup_bcs = duplicates(barcodes)
+    if dup_bcs:
+        raise ValueError("Duplicate barcodes: {0}".format(dup_bcs))
+
+
+def standardize_barcode(bc):
+    """Convert barrcode sequence into standard IUPAC format.
+
+    We make the following corrections to non-standard barcode sequences:
+    * Lowercase letters in the DNA sequence are coverted to uppercase.
+    * Hyphens are removed. These are sometimes used to separate the
+      forward and reverse barcodes.
+    """
+    bc = bc.upper()
+    bc = bc.replace("-", "")
+    return bc
+
+
+def is_valid_barcode(bc):
+    return all(c in "AGCT" for c in bc)
 
 
 def duplicates(xs):
@@ -52,7 +81,7 @@ def parse_barcode_file(f):
                     line_num, toks))
         if n == 0:
             barcode_colname = toks[1]
-            if all(c in "AGCT" for c in barcode_colname):
+            if is_valid_barcode(barcode_colname):
                 msg = (
                     "Header line expected in barcode file.  Looking at the "
                     "first line of the barcode file, we see that the second "

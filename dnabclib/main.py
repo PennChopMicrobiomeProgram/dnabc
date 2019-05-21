@@ -4,7 +4,7 @@ import json
 import os
 
 from .writer import PairedFastqWriter
-from .sample import Sample
+from .sample import load_sample_barcodes
 from .seqfile import SequenceFile
 from .assigner import BarcodeAssigner
 
@@ -50,7 +50,7 @@ def main(argv=None):
             "Write TSV table of total read counts"))
     args = p.parse_args(argv)
 
-    samples = list(Sample.load(args.barcode_file))
+    samples = load_sample_barcodes(args.barcode_file)
 
     r1 = maybe_gzip(args.r1_fastq)
     r2 = maybe_gzip(args.r2_fastq)
