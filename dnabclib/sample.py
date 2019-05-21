@@ -6,16 +6,14 @@ SampleBarcode = collections.namedtuple("SampleBarcode", ["name", "barcode"])
 
 def load_sample_barcodes(f):
     """Load SampleBarcode objects from barcode file."""
-    args = []
+    sample_bcs = []
     for name, nonstandard_barcode in parse_barcode_file(f):
         barcode = standardize_barcode(nonstandard_barcode)
-        args.append((name, barcode))
+        sample_bcs.append(SampleBarcode(name, barcode))
 
-    names, bcs = zip(*args)
-    check_sample_names(names)
-    check_barcodes(bcs)
-
-    return [SampleBarcode(name, bc) for name, bc in args]
+    check_sample_names(s.name for s in sample_bcs)
+    check_barcodes(s.barcode for s in sample_bcs)
+    return sample_bcs
 
 
 def check_sample_names(names):
