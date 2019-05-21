@@ -53,13 +53,8 @@ def is_valid_barcode(bc):
 
 
 def duplicates(xs):
-    # From http://stackoverflow.com/questions/9835762/
-    seen = set()
-    seen_add = seen.add
-    # adds all elements it doesn't know yet to seen and all other to seen_twice
-    seen_twice = set(x for x in xs if x in seen or seen_add(x))
-    # turn the set into a list (as requested)
-    return list(seen_twice)
+    xs_count = collections.Counter(xs)
+    return [x for x, n in xs_count.items() if n > 1]
 
 
 def parse_barcode_file(f):
