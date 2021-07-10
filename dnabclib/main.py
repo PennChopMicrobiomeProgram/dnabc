@@ -48,6 +48,13 @@ def main(argv=None):
     p.add_argument(
         "--total-reads-file", type=argparse.FileType("w"), help=(
             "Write TSV table of total read counts"))
+    p.add_argument(
+        "--max-open-samples", type=int, default=100, help=(
+            "Maximum number of samples for which the program will maintain "
+            "open filehandles as it writes sequences. Many systems impose "
+            "limits on the number of open filehandles for a single process. "
+            "For paired output, the number of open filehandles will be twice "
+            "the number of --max-open-samples."))
     args = p.parse_args(argv)
 
     samples = load_sample_barcodes(args.barcode_file)
@@ -60,7 +67,7 @@ def main(argv=None):
     if not os.path.exists(args.output_dir):
        os.mkdir(args.output_dir)
 
-    writer = PairedFastqWriter(args.output_dir)
+    writer = PairedFastqWriter(args.output_dir, max_open_samples=args.max_open_samples)
     assigner = BarcodeAssigner(
         samples, mismatches=args.mismatches, revcomp=args.revcomp)
     seq_file = SequenceFile(r1, r2, i1, i2)
