@@ -80,6 +80,14 @@ class FastqWriter(_SequenceWriter):
 class PairedFastqWriter(FastqWriter):
     _get_output_fp = _get_sample_paired_fp
 
+    def clear(self, samples):
+        for sample in samples:
+            fp1, fp2 = self._get_output_fp(sample)
+            if os.path.exists(fp1):
+                os.remove(fp1)
+            if os.path.exists(fp2):
+                os.remove(fp2)
+
     def _open_filepath(self, fps):
         fp1, fp2 = fps
         f1 = super(PairedFastqWriter, self)._open_filepath(fp1)

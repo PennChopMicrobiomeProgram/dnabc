@@ -68,6 +68,8 @@ def main(argv=None):
        os.mkdir(args.output_dir)
 
     writer = PairedFastqWriter(args.output_dir, max_open_samples=args.max_open_samples)
+    writer.clear(samples)
+
     assigner = BarcodeAssigner(
         samples, mismatches=args.mismatches, revcomp=args.revcomp)
     seq_file = SequenceFile(r1, r2, i1, i2)
