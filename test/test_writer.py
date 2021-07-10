@@ -85,21 +85,35 @@ class FastqWriterTests(unittest.TestCase):
         s3 = MockSample("khj")
         w = FastqWriter(self.output_dir, max_open_samples = 1)
 
-        w.write(MockFastqRead("Read0", "ACCTTGG", "#######"), s1)
-        # Opening the file for s2 should close the file for s1
-        # Just to be sure, we write to s3
-        w.write(MockFastqRead("Read1", "ACCCCGG", "#######"), s2)
-        w.write(MockFastqRead("Read2", "GGGGGGG", "#######"), s3)
-        w.write(MockFastqRead("Read3", "AAAAAAA", "#######"), s1)
-        w.close()
+        w.write(MockFastqRead("Read0", "ACCTT", "#####"), s1) # Cache miss
+        w.write(MockFastqRead("Read1", "ACCCC", "#####"), s2) # Cache miss
+        w.write(MockFastqRead("Read2", "GGGGG", "#####"), s3) # Cache miss
 
+        cache_info = w._get_output_file.cache_info()
+        self.assertEqual(cache_info.hits, 0)
+        self.assertEqual(cache_info.misses, 3)
+        self.assertEqual(cache_info.currsize, 1)
+        self.assertEqual(cache_info.maxsize, 1)
+
+        w.write(MockFastqRead("Read3", "AAAAA", "#####"), s1) # Cache miss
+        w.write(MockFastqRead("Read4", "BBBBB", "#####"), s1) # Cache hit
+
+        cache_info = w._get_output_file.cache_info()
+        self.assertEqual(cache_info.hits, 1)
+        self.assertEqual(cache_info.misses, 4)
+        self.assertEqual(cache_info.currsize, 1)
+        self.assertEqual(cache_info.maxsize, 1)
+
+        w.close()
         fp = w._get_output_fp(s1)
         with open(fp) as f:
             obs_output = f.read()
 
         self.assertEqual(
-            obs_output,
-            "@Read0\nACCTTGG\n+\n#######\n@Read3\nAAAAAAA\n+\n#######\n")
+            obs_output, (
+                "@Read0\nACCTT\n+\n#####\n"
+                "@Read3\nAAAAA\n+\n#####\n"
+                "@Read4\nBBBBB\n+\n#####\n"))
 
 class PairedFastqWriterTests(unittest.TestCase):
     def setUp(self):
