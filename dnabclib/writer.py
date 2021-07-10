@@ -1,6 +1,6 @@
-import os.path
+import functools
+import os
 
- 
 def _get_sample_fp(self, sample):
     fn = "%s%s" % (sample.name, self.ext)
     return os.path.join(self.output_dir, fn)
@@ -17,15 +17,23 @@ def _get_sample_paired_fp(self, sample):
 class _SequenceWriter(object):
     """Base class for writers"""
 
-    def __init__(self, output_dir):
+    def __init__(self, output_dir, max_open_samples = 100):
         self.output_dir = output_dir
-        self._open_files = {}
+        self._filepaths_written = {}
+        self._get_output_file = \
+            functools.lru_cache(maxsize = max_open_samples)(self._get_output_file)
+
+    def clear(self, samples):
+        for sample in samples:
+            fp = self._get_output_fp(sample)
+            if os.path.exists(fp):
+                os.remove(fp)
 
     def write_qiime2_manifest(self, f):
         f.write("sample-id,absolute-filepath,direction\n")
-        for sample, f1 in self._open_files.items():
-            fp1 = os.path.abspath(f1.name)
-            f.write("{0},{1},forward\n".format(sample.name, fp1))
+        for sample, fp in self._filepaths_written.items():
+            qiime_fp = os.path.abspath(fp)
+            f.write("{0},{1},forward\n".format(sample.name, qiime_fp))
 
     def write_read_counts(self, f, read_counts):
         f.write("SampleID\tNumReads\n")
@@ -33,15 +41,13 @@ class _SequenceWriter(object):
             f.write("{0}\t{1}\n".format(sample_name, n))
 
     def _get_output_file(self, sample):
-        f = self._open_files.get(sample)
-        if f is None:
-            fp = self._get_output_fp(sample)
-            f = self._open_filepath(fp)
-            self._open_files[sample] = f
+        fp = self._get_output_fp(sample)
+        self._filepaths_written[sample] = fp
+        f = self._open_filepath(fp)
         return f
 
     def _open_filepath(self, fp):
-        return open(fp, "w")
+        return open(fp, "a")
 
     def write(self, read, sample):
         if sample is not None:
@@ -49,8 +55,7 @@ class _SequenceWriter(object):
             self._write_to_file(f, read)
 
     def close(self):
-        for f in self._open_files.values():
-            f.close()
+        self._get_output_file.cache_clear()
 
 
 class FastaWriter(_SequenceWriter):
@@ -66,7 +71,7 @@ class FastqWriter(_SequenceWriter):
     _get_output_fp = _get_sample_fp
 
     def _open_filepath(self, fp):
-        return open(fp, "w")
+        return open(fp, "a")
 
     def _write_to_file(self, f, read):
         f.write("@%s\n%s\n+\n%s\n" % (read.desc, read.seq, read.qual))
@@ -89,16 +94,11 @@ class PairedFastqWriter(FastqWriter):
 
     def write_qiime2_manifest(self, f):
         f.write("sample-id,absolute-filepath,direction\n")
-        for sample, filepair in self._open_files.items():
-            f1, f2 = filepair
-            fp1 = os.path.abspath(f1.name)
-            f.write("{0},{1},forward\n".format(sample.name, fp1))
-            fp2 = os.path.abspath(f2.name)
-            f.write("{0},{1},reverse\n".format(sample.name, fp2))
-
-    def close(self):
-        for f1, f2 in self._open_files.values():
-            f1.close()
-            f2.close()
+        for sample, filepair in self._filepaths_written.items():
+            fp1, fp2 = filepair
+            qiime_fp1 = os.path.abspath(fp1)
+            f.write("{0},{1},forward\n".format(sample.name, qiime_fp1))
+            qiime_fp2 = os.path.abspath(fp2)
+            f.write("{0},{1},reverse\n".format(sample.name, qiime_fp2))
 
 
