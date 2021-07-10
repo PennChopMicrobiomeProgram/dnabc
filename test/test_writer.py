@@ -79,6 +79,27 @@ class FastqWriterTests(unittest.TestCase):
             "unassigned\t1\n"
         ])
 
+    def test_write_cache(self):
+        s1 = MockSample("h56")
+        s2 = MockSample("123")
+        s3 = MockSample("khj")
+        w = FastqWriter(self.output_dir, max_open_samples = 1)
+
+        w.write(MockFastqRead("Read0", "ACCTTGG", "#######"), s1)
+        # Opening the file for s2 should close the file for s1
+        # Just to be sure, we write to s3
+        w.write(MockFastqRead("Read1", "ACCCCGG", "#######"), s2)
+        w.write(MockFastqRead("Read2", "GGGGGGG", "#######"), s3)
+        w.write(MockFastqRead("Read3", "AAAAAAA", "#######"), s1)
+        w.close()
+
+        fp = w._get_output_fp(s1)
+        with open(fp) as f:
+            obs_output = f.read()
+
+        self.assertEqual(
+            obs_output,
+            "@Read0\nACCTTGG\n+\n#######\n@Read3\nAAAAAAA\n+\n#######\n")
 
 class PairedFastqWriterTests(unittest.TestCase):
     def setUp(self):
