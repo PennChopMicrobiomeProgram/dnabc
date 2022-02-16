@@ -14,7 +14,16 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
+	
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
 
       - name: Install Dependencies
 	run: |
-	  ls
+	  python -m pip install -U pytest
+
+      - name: Run Tests
+        run: |
+          pytest .tests/
