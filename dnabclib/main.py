@@ -70,7 +70,11 @@ def main(argv=None):
         writer.write_qiime2_manifest(args.manifest_file)
     if args.total_reads_file:
         writer.write_read_counts(args.total_reads_file, assigner.read_counts)
-
+    
+    with open("logs/unassigned_counts", "w") as unassigned_log:
+        unassigned_log.write("#Unassigned Barcodes\tCounts")
+        for obj in assigner.unassigned_counts.most_common(100):
+            unassigned_log.write(obj[0] + "\t" + str(obj[1]) + "\n")
 
 def maybe_gzip(f):
     fname = f.name

@@ -1,5 +1,6 @@
 import itertools
-
+from collections import Counter
+import sys
 
 class BarcodeAssigner(object):
     allowed_mismatches = [0, 1, 2]
@@ -15,6 +16,7 @@ class BarcodeAssigner(object):
         # Sample names assumed to be unique after validating input data
         self.read_counts = dict((s.name, 0) for s in self.samples)
         self.read_counts['unassigned'] = 0
+        self.unassigned_counts = Counter()
         self._init_hash()
 
     def _init_hash(self):
@@ -68,6 +70,7 @@ class BarcodeAssigner(object):
             self.read_counts[sample.name] += 1
         else:
             self.read_counts['unassigned'] += 1
+            self.unassigned_counts[seq] += 1
         return sample
 
 
