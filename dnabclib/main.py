@@ -71,6 +71,8 @@ def main(argv=None):
     if args.total_reads_file:
         writer.write_read_counts(args.total_reads_file, assigner.read_counts)
     
+    if not os.path.isdir("logs/"):
+        os.system("mkdir logs/")
     with open("logs/unassigned_counts", "w") as unassigned_log:
         unassigned_log.write("#Unassigned Barcodes\tCounts")
         for obj in assigner.unassigned_counts.most_common(100):
