@@ -1,6 +1,5 @@
 import itertools
 from collections import Counter
-import sys
 
 class BarcodeAssigner(object):
     allowed_mismatches = [0, 1, 2]
