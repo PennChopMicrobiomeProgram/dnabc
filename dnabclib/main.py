@@ -1,4 +1,5 @@
 import argparse
+from cmath import log
 import gzip
 import json
 import os
@@ -71,12 +72,13 @@ def main(argv=None):
     if args.total_reads_file:
         writer.write_read_counts(args.total_reads_file, assigner.read_counts)
     
-    if not os.path.isdir("logs/"):
-        os.system("mkdir logs/")
-    with open("logs/unassigned_counts", "w") as unassigned_log:
-        unassigned_log.write("#Unassigned Barcodes\tCounts")
-        for obj in assigner.unassigned_counts.most_common(100):
-            unassigned_log.write(obj[0] + "\t" + str(obj[1]) + "\n")
+    log_fp = os.path.join(args.output_dir, "../logs")
+    if not os.path.isdir(log_fp):
+        os.mkdir(log_fp)
+    with open(os.path.join(log_fp, "unassigned_counts"), "w") as unassigned_log:
+        unassigned_log.write("#UnassignedBarcodes\tCounts\n")
+        for barcode, count in assigner.unassigned_counts.most_common(100):
+            unassigned_log.write(barcode + "\t" + str(count) + "\n")
 
 def maybe_gzip(f):
     fname = f.name
