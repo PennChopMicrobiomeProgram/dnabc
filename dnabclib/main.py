@@ -76,7 +76,7 @@ def main(argv=None):
         writer.write_read_counts(args.total_reads_file, assigner.read_counts)
     if args.unassigned_barcodes_file:
         writer.write_unassigned_barcodes(
-            args.unassigned_barcodes_file, assigner.unassigned_counts)
+            args.unassigned_barcodes_file, assigner.most_common_unassigned())
 
 def maybe_gzip(f):
     fname = f.name
