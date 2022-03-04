@@ -33,7 +33,7 @@ class _SequenceWriter(object):
             f.write("{0}\t{1}\n".format(sample_name, n))
 
     def write_unassigned_barcodes(self, f, barcode_counter):
-        f.write("#UnassignedBarcodes\tCounts\n")
+        f.write("Barcode\tNumReads\n")
         for barcode, count in barcode_counter.most_common(100):
             f.write(barcode + "\t" + str(count) + "\n")
 

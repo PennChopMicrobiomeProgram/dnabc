@@ -79,7 +79,7 @@ class FastqDemultiplexTests(unittest.TestCase):
             self.assertEqual(next(f), "unassigned\t1\n")
         
         with open(self.unassigned_fp) as f:
-            self.assertEqual(next(f), "#UnassignedBarcodes\tCounts\n")
+            self.assertEqual(next(f), "Barcode\tNumReads\n")
             self.assertEqual(next(f), "GGGGCGCT\t1\n")
 
     def test_gzipped(self):
