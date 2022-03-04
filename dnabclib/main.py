@@ -49,6 +49,9 @@ def main(argv=None):
     p.add_argument(
         "--total-reads-file", type=argparse.FileType("w"), help=(
             "Write TSV table of total read counts"))
+    p.add_argument(
+        "--unassigned-barcodes-file", type=argparse.FileType("w"), help=(
+            "Write TSV table of unassigned barcode sequences"))
     args = p.parse_args(argv)
 
     samples = load_sample_barcodes(args.barcode_file)
@@ -71,14 +74,10 @@ def main(argv=None):
         writer.write_qiime2_manifest(args.manifest_file)
     if args.total_reads_file:
         writer.write_read_counts(args.total_reads_file, assigner.read_counts)
-    
-    log_fp = os.path.join(args.output_dir, "../logs")
-    if not os.path.isdir(log_fp):
-        os.mkdir(log_fp)
-    with open(os.path.join(log_fp, "unassigned_counts"), "w") as unassigned_log:
-        unassigned_log.write("#UnassignedBarcodes\tCounts\n")
+    if args.unassigned_barcodes_file:
+        args.unassigned_barcodes_file.write("#UnassignedBarcodes\tCounts\n")
         for barcode, count in assigner.unassigned_counts.most_common(100):
-            unassigned_log.write(barcode + "\t" + str(count) + "\n")
+            args.unassigned_barcodes_file.write(barcode + "\t" + str(count) + "\n")
 
 def maybe_gzip(f):
     fname = f.name
