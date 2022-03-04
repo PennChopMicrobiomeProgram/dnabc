@@ -32,6 +32,11 @@ class _SequenceWriter(object):
         for sample_name, n in read_counts.items():
             f.write("{0}\t{1}\n".format(sample_name, n))
 
+    def write_unassigned_barcodes(self, f, barcode_counter):
+        f.write("#UnassignedBarcodes\tCounts\n")
+        for barcode, count in barcode_counter.most_common(100):
+            f.write(barcode + "\t" + str(count) + "\n")
+
     def _get_output_file(self, sample):
         f = self._open_files.get(sample)
         if f is None:
