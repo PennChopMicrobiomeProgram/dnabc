@@ -72,6 +72,9 @@ class BarcodeAssigner(object):
             self.unassigned_counts[seq] += 1
         return sample
 
+    def most_common_unassigned(self, n=100):
+        return self.unassigned_counts.most_common(n)
+
 
 AMBIGUOUS_BASES = {
     "T": "T",

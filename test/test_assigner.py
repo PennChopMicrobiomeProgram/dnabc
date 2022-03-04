@@ -40,6 +40,17 @@ class BarcodeAssignerTests(unittest.TestCase):
         self.assertEqual(a.unassigned_counts, Counter({'GTCAAAT': 1}))
         self.assertEqual(a.read_counts, {"Abc": 2, 'unassigned':1})
 
+    def test_most_common_unassigned(self):
+        s = MockSample("Abc", "ACCTGAC")
+        a = BarcodeAssigner([s])
+        a.assign("GGGGGG")
+        a.assign("GGGGGG")
+        a.assign("GGGGGG")
+        a.assign("AAAAAA")
+        a.assign("AAAAAA")
+        barcode_counts = a.most_common_unassigned()
+        self.assertEqual(list(barcode_counts), [("GGGGGG", 3), ("AAAAAA", 2)])
+
 
 class FunctionTests(unittest.TestCase):
     def test_deambiguate(self):
