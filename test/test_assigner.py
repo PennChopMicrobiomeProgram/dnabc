@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import ( namedtuple, Counter )
 import unittest
 
 from dnabclib.assigner import (
@@ -32,10 +32,12 @@ class BarcodeAssignerTests(unittest.TestCase):
 
         # 1 mismatch
         self.assertEqual(a.assign("GTCAAGT"), s)
+        self.assertEqual(a.unassigned_counts, Counter())
         self.assertEqual(a.read_counts, {"Abc": 2, 'unassigned':0})
 
         # 2 mismatches
         self.assertEqual(a.assign("GTCAAAT"), None)
+        self.assertEqual(a.unassigned_counts, Counter({'GTCAAAT': 1}))
         self.assertEqual(a.read_counts, {"Abc": 2, 'unassigned':1})
 
 
