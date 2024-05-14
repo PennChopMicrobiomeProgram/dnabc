@@ -4,8 +4,10 @@ import os.path
 import unittest
 
 from dnabclib.seqfile import (
-    IndexFastqSequenceFile, NoIndexFastqSequenceFile, parse_fastq,
-    )
+    IndexFastqSequenceFile,
+    NoIndexFastqSequenceFile,
+    parse_fastq,
+)
 from dnabclib.assigner import BarcodeAssigner
 
 
@@ -19,10 +21,12 @@ class MockWriter(object):
         else:
             self.written[sample.name].append(x)
 
+
 MockSample = collections.namedtuple("MockSample", "name barcode")
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(TEST_DIR, "data")
+
 
 class IndexFastqSequenceFileTests(unittest.TestCase):
     def test_demultiplex(self):
@@ -52,7 +56,8 @@ class NoIndexFastqSequenceFileTests(unittest.TestCase):
     def test_demultiplex(self):
         x = NoIndexFastqSequenceFile(
             open(os.path.join(DATA_DIR, "med_R1.fastq")),
-            open(os.path.join(DATA_DIR, "med_R2.fastq")))
+            open(os.path.join(DATA_DIR, "med_R2.fastq")),
+        )
         w = MockWriter()
         # Barcode matches the 4th read
         s1 = MockSample("SampleS1", "GTTTCGCCCTAGTACA")
@@ -75,14 +80,16 @@ class NoIndexFastqSequenceFileTests(unittest.TestCase):
 class FunctionTests(unittest.TestCase):
     def test_parse_fastq(self):
         obs = parse_fastq(StringIO(fastq1))
-        self.assertEqual(next(obs), (
-            "YesYes", "AGGGCCTTGGTGGTTAG", ";234690GSDF092384"))
-        self.assertEqual(next(obs), (
-            "Seq2:with spaces", "GCTNNNNNNNNNNNNNNN", "##################"))
+        self.assertEqual(
+            next(obs), ("YesYes", "AGGGCCTTGGTGGTTAG", ";234690GSDF092384")
+        )
+        self.assertEqual(
+            next(obs), ("Seq2:with spaces", "GCTNNNNNNNNNNNNNNN", "##################")
+        )
         self.assertRaises(StopIteration, next, obs)
 
 
-fastq1 = u"""\
+fastq1 = """\
 @YesYes
 AGGGCCTTGGTGGTTAG
 +

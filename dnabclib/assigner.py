@@ -1,6 +1,7 @@
 import itertools
 from collections import Counter
 
+
 class BarcodeAssigner(object):
     allowed_mismatches = [0, 1, 2]
 
@@ -8,13 +9,13 @@ class BarcodeAssigner(object):
         self.samples = samples
         if mismatches not in self.allowed_mismatches:
             raise ValueError(
-                "Only %s mismatches allowed (got %s)" % (
-                    allowed_mismatches, mismatches))
+                "Only %s mismatches allowed (got %s)" % (allowed_mismatches, mismatches)
+            )
         self.mismatches = mismatches
         self.revcomp = revcomp
         # Sample names assumed to be unique after validating input data
         self.read_counts = dict((s.name, 0) for s in self.samples)
-        self.read_counts['unassigned'] = 0
+        self.read_counts["unassigned"] = 0
         self.unassigned_counts = Counter()
         self._init_hash()
 
@@ -36,9 +37,9 @@ class BarcodeAssigner(object):
                 if error_bc in self._barcodes:
                     raise ValueError(
                         "Barcode %s for sample %s matches barcode for "
-                        "sample %s with %s mismatches" % (
-                            error_bc, self._barcodes[error_bc], s,
-                            self.mismatches))
+                        "sample %s with %s mismatches"
+                        % (error_bc, self._barcodes[error_bc], s, self.mismatches)
+                    )
                 else:
                     self._barcodes[error_bc] = s
 
@@ -68,7 +69,7 @@ class BarcodeAssigner(object):
         if sample is not None:
             self.read_counts[sample.name] += 1
         else:
-            self.read_counts['unassigned'] += 1
+            self.read_counts["unassigned"] += 1
             self.unassigned_counts[seq] += 1
         return sample
 
@@ -92,7 +93,7 @@ AMBIGUOUS_BASES = {
     "V": "CAG",
     "D": "TAG",
     "N": "TCAG",
-    }
+}
 
 
 # Ambiguous base codes for all bases EXCEPT the key
@@ -101,7 +102,7 @@ AMBIGUOUS_BASES_COMPLEMENT = {
     "C": "D",
     "A": "B",
     "G": "H",
-    }
+}
 
 
 def deambiguate(seq):
@@ -114,10 +115,10 @@ COMPLEMENT_BASES = {
     "C": "G",
     "A": "T",
     "G": "C",
-    }
+}
 
 
 def reverse_complement(seq):
     rc = [COMPLEMENT_BASES[x] for x in seq]
     rc.reverse()
-    return ''.join(rc)
+    return "".join(rc)

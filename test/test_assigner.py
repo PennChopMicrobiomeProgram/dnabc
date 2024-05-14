@@ -1,9 +1,11 @@
-from collections import ( namedtuple, Counter )
+from collections import namedtuple, Counter
 import unittest
 
 from dnabclib.assigner import (
-    BarcodeAssigner, deambiguate, reverse_complement,
-    )
+    BarcodeAssigner,
+    deambiguate,
+    reverse_complement,
+)
 
 
 MockRead = namedtuple("Read", "seq")
@@ -15,30 +17,36 @@ class BarcodeAssignerTests(unittest.TestCase):
         a = BarcodeAssigner([], mismatches=1)
         obs = a._error_barcodes("AGG")
         exp = [
-            "CGG", "GGG", "TGG",
-            "AAG", "ACG", "ATG",
-            "AGA", "AGC", "AGT",
-            ]
+            "CGG",
+            "GGG",
+            "TGG",
+            "AAG",
+            "ACG",
+            "ATG",
+            "AGA",
+            "AGC",
+            "AGT",
+        ]
         self.assertEqual(set(obs), set(exp))
 
     def test_one_mismatch(self):
         s = MockSample("Abc", "ACCTGAC")
         a = BarcodeAssigner([s], mismatches=1, revcomp=True)
-        self.assertEqual(a.read_counts, {"Abc": 0, 'unassigned':0})
+        self.assertEqual(a.read_counts, {"Abc": 0, "unassigned": 0})
 
         # 0 mismatches
         self.assertEqual(a.assign("GTCAGGT"), s)
-        self.assertEqual(a.read_counts, {"Abc": 1, 'unassigned':0})
+        self.assertEqual(a.read_counts, {"Abc": 1, "unassigned": 0})
 
         # 1 mismatch
         self.assertEqual(a.assign("GTCAAGT"), s)
         self.assertEqual(a.unassigned_counts, Counter())
-        self.assertEqual(a.read_counts, {"Abc": 2, 'unassigned':0})
+        self.assertEqual(a.read_counts, {"Abc": 2, "unassigned": 0})
 
         # 2 mismatches
         self.assertEqual(a.assign("GTCAAAT"), None)
-        self.assertEqual(a.unassigned_counts, Counter({'GTCAAAT': 1}))
-        self.assertEqual(a.read_counts, {"Abc": 2, 'unassigned':1})
+        self.assertEqual(a.unassigned_counts, Counter({"GTCAAAT": 1}))
+        self.assertEqual(a.read_counts, {"Abc": 2, "unassigned": 1})
 
     def test_most_common_unassigned(self):
         s = MockSample("Abc", "ACCTGAC")
@@ -66,6 +74,6 @@ class FunctionTests(unittest.TestCase):
         self.assertEqual(reverse_complement("AGATC"), "GATCT")
         self.assertRaises(KeyError, reverse_complement, "ANCC")
 
-                
+
 if __name__ == "__main__":
     unittest.main()

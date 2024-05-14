@@ -13,45 +13,65 @@ from .assigner import BarcodeAssigner
 def main(argv=None):
     p = argparse.ArgumentParser()
     p.add_argument(
-        "barcode_file", type=argparse.FileType("r"),
-        help="Barcode file (TSV format)")
+        "barcode_file", type=argparse.FileType("r"), help="Barcode file (TSV format)"
+    )
     p.add_argument(
-        "r1_fastq", type=argparse.FileType("r"),
-        help="Forward reads FASTQ file")
+        "r1_fastq", type=argparse.FileType("r"), help="Forward reads FASTQ file"
+    )
     p.add_argument(
-        "r2_fastq", type=argparse.FileType("r"),
-        help="Reverse reads FASTQ file")
+        "r2_fastq", type=argparse.FileType("r"), help="Reverse reads FASTQ file"
+    )
     p.add_argument(
-        "--i1-fastq", type=argparse.FileType("r"), help=(
+        "--i1-fastq",
+        type=argparse.FileType("r"),
+        help=(
             "Forward index FASTQ file. If this file is not provided, the "
             "index reads will be taken from the description lines in the "
-            "forward reads file."))
+            "forward reads file."
+        ),
+    )
     p.add_argument(
-        "--i2-fastq", type=argparse.FileType("r"), help=(
+        "--i2-fastq",
+        type=argparse.FileType("r"),
+        help=(
             "Reverse index FASTQ file. If this file is provided, the "
             "forward index file must be provided as well. The forward and "
             "reverse index reads will be concatenated before comparison "
-            "to the barcode sequences."))
+            "to the barcode sequences."
+        ),
+    )
     p.add_argument(
-        "--output-dir", default="demultiplexed_fastq",
-        help="Output sequence data directory (default: %(default)s)")
+        "--output-dir",
+        default="demultiplexed_fastq",
+        help="Output sequence data directory (default: %(default)s)",
+    )
     p.add_argument(
-        "--revcomp", action="store_true",
-        help="Reverse complement barcode sequences")
+        "--revcomp", action="store_true", help="Reverse complement barcode sequences"
+    )
     p.add_argument(
-        "--mismatches", type=int, default=0,
-        choices=BarcodeAssigner.allowed_mismatches, help=(
-            "Maximum number of mismatches in barcode sequence "
-            "(default: %(default)s)"))
+        "--mismatches",
+        type=int,
+        default=0,
+        choices=BarcodeAssigner.allowed_mismatches,
+        help=(
+            "Maximum number of mismatches in barcode sequence " "(default: %(default)s)"
+        ),
+    )
     p.add_argument(
-        "--manifest-file", type=argparse.FileType("w"), help=(
-            "Write manifest file for QIIME2"))
+        "--manifest-file",
+        type=argparse.FileType("w"),
+        help=("Write manifest file for QIIME2"),
+    )
     p.add_argument(
-        "--total-reads-file", type=argparse.FileType("w"), help=(
-            "Write TSV table of total read counts"))
+        "--total-reads-file",
+        type=argparse.FileType("w"),
+        help=("Write TSV table of total read counts"),
+    )
     p.add_argument(
-        "--unassigned-barcodes-file", type=argparse.FileType("w"), help=(
-            "Write TSV table of unassigned barcode sequences"))
+        "--unassigned-barcodes-file",
+        type=argparse.FileType("w"),
+        help=("Write TSV table of unassigned barcode sequences"),
+    )
     args = p.parse_args(argv)
 
     samples = load_sample_barcodes(args.barcode_file)
@@ -62,11 +82,12 @@ def main(argv=None):
     i2 = maybe_gzip(args.i2_fastq) if (args.i2_fastq is not None) else None
 
     if not os.path.exists(args.output_dir):
-       os.mkdir(args.output_dir)
+        os.mkdir(args.output_dir)
 
     writer = PairedFastqWriter(args.output_dir)
     assigner = BarcodeAssigner(
-        samples, mismatches=args.mismatches, revcomp=args.revcomp)
+        samples, mismatches=args.mismatches, revcomp=args.revcomp
+    )
     seq_file = SequenceFile(r1, r2, i1, i2)
     seq_file.demultiplex(assigner, writer)
 
@@ -76,7 +97,9 @@ def main(argv=None):
         writer.write_read_counts(args.total_reads_file, assigner.read_counts)
     if args.unassigned_barcodes_file:
         writer.write_unassigned_barcodes(
-            args.unassigned_barcodes_file, assigner.most_common_unassigned())
+            args.unassigned_barcodes_file, assigner.most_common_unassigned()
+        )
+
 
 def maybe_gzip(f):
     fname = f.name

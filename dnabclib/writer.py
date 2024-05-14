@@ -1,6 +1,6 @@
 import os.path
 
- 
+
 def _get_sample_fp(self, sample):
     fn = "%s%s" % (sample.name, self.ext)
     return os.path.join(self.output_dir, fn)
@@ -9,9 +9,7 @@ def _get_sample_fp(self, sample):
 def _get_sample_paired_fp(self, sample):
     fn1 = "%s_R1%s" % (sample.name, self.ext)
     fn2 = "%s_R2%s" % (sample.name, self.ext)
-    return (
-        os.path.join(self.output_dir, fn1),
-        os.path.join(self.output_dir, fn2))
+    return (os.path.join(self.output_dir, fn1), os.path.join(self.output_dir, fn2))
 
 
 class _SequenceWriter(object):
@@ -85,7 +83,7 @@ class PairedFastqWriter(FastqWriter):
         f1 = super(PairedFastqWriter, self)._open_filepath(fp1)
         f2 = super(PairedFastqWriter, self)._open_filepath(fp2)
         return (f1, f2)
-    
+
     def _write_to_file(self, filepair, readpair):
         f1, f2 = filepair
         r1, r2 = readpair
@@ -105,5 +103,3 @@ class PairedFastqWriter(FastqWriter):
         for f1, f2 in self._open_files.values():
             f1.close()
             f2.close()
-
-

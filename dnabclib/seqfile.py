@@ -17,6 +17,7 @@ class IndexFastqSequenceFile(object):
     This format is used by the MiSeq but not supported by newer HiSeq
     machines.
     """
+
     def __init__(self, fwd, rev, idx):
         self.forward_file = fwd
         self.reverse_file = rev
@@ -38,6 +39,7 @@ class DualIndexFastqSequenceFile(object):
 
     This format is used by the MiSeq
     """
+
     def __init__(self, fwd, rev, fwd_idx, rev_idx):
         self.forward_file = fwd
         self.reverse_file = rev
@@ -62,6 +64,7 @@ class NoIndexFastqSequenceFile(object):
     This format is used by the newer HiSeq machines.  Barcodes are
     found in the description lines of each read.
     """
+
     def __init__(self, fwd, rev):
         self.forward_file = fwd
         self.reverse_file = rev
@@ -97,6 +100,7 @@ class FastqRead(object):
 
     def as_tuple(self):
         return (self.desc, self.seq, self.qual)
+
 
 def _grouper(iterable, n):
     "Collect data into fixed-length chunks or blocks"
