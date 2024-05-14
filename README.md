@@ -1,8 +1,8 @@
 # DNAbc
 
 [![Tests](https://github.com/PennChopMicrobiomeProgram/dnabc/actions/workflows/pr.yml/badge.svg)](https://github.com/PennChopMicrobiomeProgram/dnabc/actions/workflows/pr.yml)
-[![codecov](https://codecov.io/gh/PennChopMicrobiomeProgram/dnabc/graph/badge.svg?token=HH27P1FDM5)](https://codecov.io/gh/PennChopMicrobiomeProgram/dnabc)
-[![Codacy Badge]()]
+[![codecov](https://codecov.io/gh/PennChopMicrobiomeProgram/dnabc/graph/badge.svg?token=LB4WAS4S61)](https://codecov.io/gh/PennChopMicrobiomeProgram/dnabc)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ead94847cf8540108fa831be4664db0b)](https://app.codacy.com/gh/PennChopMicrobiomeProgram/dnabc/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![PyPI](https://badge.fury.io/py/dnabc.svg)](https://pypi.org/project/dnabc/)
 [![Bioconda](https://anaconda.org/bioconda/dnabc/badges/downloads.svg)](https://anaconda.org/bioconda/dnabc/)
 [![DockerHub](https://img.shields.io/docker/pulls/ctbushman/dnabc)](https://hub.docker.com/repository/docker/ctbushman/dnabc/)
