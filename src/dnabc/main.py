@@ -1,7 +1,5 @@
 import argparse
-from cmath import log
 import gzip
-import json
 import os
 
 from .writer import PairedFastqWriter

@@ -4,7 +4,7 @@ import shutil
 import tempfile
 import unittest
 
-from dnabclib.writer import FastaWriter, FastqWriter, PairedFastqWriter
+from src.dnabc.writer import FastaWriter, FastqWriter, PairedFastqWriter
 
 MockFastaRead = namedtuple("Read", "desc seq")
 MockFastqRead = namedtuple("Read", "desc seq qual")

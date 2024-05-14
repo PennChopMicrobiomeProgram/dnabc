@@ -1,6 +1,6 @@
 import unittest
 
-from dnabclib.sample import (
+from src.dnabc.sample import (
     SampleBarcode,
     load_sample_barcodes,
     check_sample_names,

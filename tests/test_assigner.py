@@ -1,7 +1,7 @@
 from collections import namedtuple, Counter
 import unittest
 
-from dnabclib.assigner import (
+from src.dnabc.assigner import (
     BarcodeAssigner,
     deambiguate,
     reverse_complement,

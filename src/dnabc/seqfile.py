@@ -1,6 +1,3 @@
-import itertools
-
-
 # Factory function for SequenceFile classes
 def SequenceFile(fwd, rev, fwd_idx=None, rev_idx=None):
     if fwd_idx and rev_idx:

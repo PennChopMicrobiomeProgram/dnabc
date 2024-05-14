@@ -3,12 +3,12 @@ from io import StringIO
 import os.path
 import unittest
 
-from dnabclib.seqfile import (
+from src.dnabc.seqfile import (
     IndexFastqSequenceFile,
     NoIndexFastqSequenceFile,
     parse_fastq,
 )
-from dnabclib.assigner import BarcodeAssigner
+from src.dnabc.assigner import BarcodeAssigner
 
 
 class MockWriter(object):
