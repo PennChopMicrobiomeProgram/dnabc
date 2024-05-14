@@ -1,0 +1,67 @@
+[project]
+name = "dnabc"  # Required
+dynamic = ["version"]
+description = "Demultiplex pooled DNA sequencing data"  # Optional
+readme = "README.md" # Optional
+requires-python = ">=3.7"
+#license = {file = "LICENSE.txt"}  # Optional
+#keywords = ["sample", "setuptools", "development"]  # Optional
+
+authors = [
+  {name = "Kyle Bittinger", email = "kylebittinger@gmail.com"} # Optional
+]
+
+maintainers = [
+  {name = "Charlie Bushman", email = "ctbushman@gmail.com" } # Optional
+]
+
+classifiers = [  # Optional
+  # How mature is this project? Common values are
+  #   3 - Alpha
+  #   4 - Beta
+  #   5 - Production/Stable
+  "Development Status :: 5 - Production/Stable",
+
+  # Indicate who your project is intended for
+  #"Intended Audience :: Bioinformaticians",
+  #"Topic :: Bioinformatics :: Metagenomics",
+
+  # Pick your license as you wish
+  #"License :: OSI Approved :: MIT License",
+
+  # Specify the Python versions you support here. In particular, ensure
+  # that you indicate you support Python 3. These classifiers are *not*
+  # checked by "pip install". See instead "python_requires" below.
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3 :: Only",
+]
+
+dependencies = [ # Optional
+]
+
+[project.optional-dependencies] # Optional
+dev = ["black"]
+test = ["pytest", "pytest-cov"]
+
+[project.urls]  # Optional
+"Homepage" = "https://github.com/PennChopMicrobiomeProgram/dnabc"
+"Bug Reports" = "https://github.com/PennChopMicrobiomeProgram/dnabc/issues"
+#"Funding" = "https://donate.pypi.org"
+#"Say Thanks!" = "http://saythanks.io/to/example"
+"Source" = "https://github.com/PennChopMicrobiomeProgram/dnabc"
+
+[project.scripts]  # Optional
+"dnabc.py" = "dnabclib.main:main"
+"split_samplelanes.py" = "dnabclib.split_samplelanes:main"
+
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+version = {attr = "dnabc.__version__"}
