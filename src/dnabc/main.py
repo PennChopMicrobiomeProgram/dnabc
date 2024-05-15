@@ -2,6 +2,7 @@ import argparse
 import gzip
 import os
 
+from . import __version__
 from .writer import PairedFastqWriter
 from .sample import load_sample_barcodes
 from .seqfile import SequenceFile

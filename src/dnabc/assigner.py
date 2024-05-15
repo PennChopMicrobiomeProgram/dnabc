@@ -9,7 +9,7 @@ class BarcodeAssigner(object):
         self.samples = samples
         if mismatches not in self.allowed_mismatches:
             raise ValueError(
-                "Only %s mismatches allowed (got %s)" % (allowed_mismatches, mismatches)
+                "Only %s mismatches allowed (got %s)" % (self.allowed_mismatches, mismatches)
             )
         self.mismatches = mismatches
         self.revcomp = revcomp

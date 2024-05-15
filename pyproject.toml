@@ -56,8 +56,8 @@ test = ["pytest", "pytest-cov"]
 "Source" = "https://github.com/PennChopMicrobiomeProgram/dnabc"
 
 [project.scripts]  # Optional
-"dnabc.py" = "dnabclib.main:main"
-"split_samplelanes.py" = "dnabclib.split_samplelanes:main"
+"dnabc.py" = "dnabc.main:main"
+"split_samplelanes.py" = "dnabc.split_samplelanes:main"
 
 [build-system]
 requires = ["setuptools>=61.0.0", "wheel"]
