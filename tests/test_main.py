@@ -1,6 +1,6 @@
+import gzip
 import os
 import shutil
-import subprocess
 import tempfile
 import unittest
 
@@ -102,11 +102,17 @@ class FastqDemultiplexTests(unittest.TestCase):
 
     def test_gzipped(self):
         forward_gzip_fp = self.forward_fp + ".gz"
-        subprocess.check_call(["gzip", self.forward_fp])
+        with open(self.forward_fp, "rb") as f_in:
+            with gzip.open(forward_gzip_fp, "wb") as f_out:
+                f_out.writelines(f_in)
         reverse_gzip_fp = self.reverse_fp + ".gz"
-        subprocess.check_call(["gzip", self.reverse_fp])
+        with open(self.reverse_fp, "rb") as f_in:
+            with gzip.open(reverse_gzip_fp, "wb") as f_out:
+                f_out.writelines(f_in)
         index_gzip_fp = self.index_fp + ".gz"
-        subprocess.check_call(["gzip", self.index_fp])
+        with open(self.index_fp, "rb") as f_in:
+            with gzip.open(index_gzip_fp, "wb") as f_out:
+                f_out.writelines(f_in)
         main(
             [
                 self.barcode_fp,
