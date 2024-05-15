@@ -86,7 +86,7 @@ class FastqDemultiplexTests(unittest.TestCase):
         with open(self.manifest_fp) as f:
             self.assertEqual(next(f), "sample-id,absolute-filepath,direction\n")
             for line in f:
-                sample_id, fp, direction = line.split(",", 3)
+                sample_id, _, direction = line.split(",", 3)
                 self.assertIn(direction, ["forward\n", "reverse\n"])
                 self.assertIn(sample_id, ["SampleA", "SampleB"])
 
