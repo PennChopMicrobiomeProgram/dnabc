@@ -71,6 +71,7 @@ def main(argv=None):
         type=argparse.FileType("w"),
         help=("Write TSV table of unassigned barcode sequences"),
     )
+    p.add_argument("-v", "--version", action="version", version=str(__version__))
     args = p.parse_args(argv)
 
     samples = load_sample_barcodes(args.barcode_file)
