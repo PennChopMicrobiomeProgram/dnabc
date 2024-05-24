@@ -9,18 +9,12 @@ Identify DNA barcodes in FASTQ data files and write demultiplexed data.
 
 ## Installation
 
-### Pip
+### GitHub
 
 ```bash
-pip install dnabc
-dnabc.py -h
-```
-
-### Bioconda
-
-```bash
-conda create -n dnabc -c conda-forge -c bioconda dnabc
-conda activate dnabc
+git clone https://github.com/PennChopMicrobiomeProgram/dnabc.git
+cd dnabc
+pip install .
 dnabc.py -h
 ```
 
@@ -29,15 +23,6 @@ dnabc.py -h
 ```bash
 docker pull ctbushman/dnabc:latest
 docker run --rm --name dnabc dnabc dnabc.py -h
-```
-
-### GitHub
-
-```bash
-git clone https://github.com/PennChopMicrobiomeProgram/dnabc.git
-cd dnabc
-pip install .
-dnabc.py -h
 ```
 
 ## Usage
