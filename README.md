@@ -1,15 +1,45 @@
 # DNAbc
 
+[![Tests](https://github.com/PennChopMicrobiomeProgram/dnabc/actions/workflows/pr.yml/badge.svg)](https://github.com/PennChopMicrobiomeProgram/dnabc/actions/workflows/pr.yml)
+[![codecov](https://codecov.io/gh/PennChopMicrobiomeProgram/dnabc/graph/badge.svg?token=LB4WAS4S61)](https://codecov.io/gh/PennChopMicrobiomeProgram/dnabc)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ead94847cf8540108fa831be4664db0b)](https://app.codacy.com/gh/PennChopMicrobiomeProgram/dnabc/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![PyPI](https://badge.fury.io/py/dnabc.svg)](https://pypi.org/project/dnabc/)
+[![Bioconda](https://anaconda.org/bioconda/dnabc/badges/downloads.svg)](https://anaconda.org/bioconda/dnabc/)
+[![DockerHub](https://img.shields.io/docker/pulls/ctbushman/dnabc)](https://hub.docker.com/repository/docker/ctbushman/dnabc/)
+
 Identify DNA barcodes in FASTQ data files and write demultiplexed data.
 
 ## Installation
 
-Install by cloning this repository and using `pip`.
+### Pip
+
+```bash
+pip install dnabc
+dnabc.py -h
+```
+
+### Bioconda
+
+```bash
+conda create -n dnabc -c conda-forge -c bioconda dnabc
+conda activate dnabc
+dnabc.py -h
+```
+
+### DockerHub
+
+```bash
+docker pull ctbushman/dnabc:latest
+docker run --rm --name dnabc dnabc dnabc.py -h
+```
+
+### GitHub
 
 ```bash
 git clone https://github.com/PennChopMicrobiomeProgram/dnabc.git
 cd dnabc
 pip install .
+dnabc.py -h
 ```
 
 ## Usage
