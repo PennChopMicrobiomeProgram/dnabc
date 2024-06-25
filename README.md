@@ -15,24 +15,24 @@ Identify DNA barcodes in FASTQ data files and write demultiplexed data.
 git clone https://github.com/PennChopMicrobiomeProgram/dnabc.git
 cd dnabc
 pip install .
-dnabc.py -h
+dnabc -h
 ```
 
 ### DockerHub
 
 ```bash
 docker pull ctbushman/dnabc:latest
-docker run --rm --name dnabc dnabc dnabc.py -h
+docker run --rm --name dnabc dnabc dnabc -h
 ```
 
 ## Usage
 
-The Python library provides a command-line program, `dnabc.py`. The
+The Python library provides a command-line program, `dnabc`. The
 program takes three positional arguments: a file of barcodes, a FASTQ
 file of forward reads, and a FASTQ file of reverse reads.
 
 ```bash
-dnabc.py barcodes.txt myreads_R1.fastq myreads_R2.fastq
+dnabc barcodes.txt myreads_R1.fastq myreads_R2.fastq
 ```
 
 The FASTQ files can be compressed with `gzip`, and are treated as
