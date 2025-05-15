@@ -26,6 +26,9 @@ class BarcodeAssignerTests(unittest.TestCase):
             "AGA",
             "AGC",
             "AGT",
+            "NGG",
+            "ANG",
+            "AGN",
         ]
         self.assertEqual(set(obs), set(exp))
 
