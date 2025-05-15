@@ -54,15 +54,20 @@ class BarcodeAssigner(object):
         idx_sets = itertools.combinations(range(len(barcode)), self.mismatches)
         for idx_set in idx_sets:
             # Change to list because strings are immutable
-            bc = list(barcode)
+            bc_ns = list(barcode)
+            bc_acgt = list(barcode)
             # Replace the base at each mismatch position with an
             # ambiguous base specifying all possibilities BUT the one
             # we see.
             for idx in idx_set:
-                bc[idx] = AMBIGUOUS_BASES_COMPLEMENT[bc[idx]]
+                # Replace with "N" at the mismatch position
+                bc_ns[idx] = "N"
+                # Replace with an ambiguous base that will be expanded later
+                bc_acgt[idx] = AMBIGUOUS_BASES_COMPLEMENT[bc_acgt[idx]]
+            yield "".join(bc_ns)
             # Expand to all possibilities for mismatching at this
             # particular set of positions
-            for error_bc in deambiguate(bc):
+            for error_bc in deambiguate(bc_acgt):
                 yield error_bc
 
     def assign(self, seq):
