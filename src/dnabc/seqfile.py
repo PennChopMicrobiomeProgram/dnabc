@@ -1,3 +1,7 @@
+import os
+from concurrent.futures import ThreadPoolExecutor
+
+
 # Factory function for SequenceFile classes
 def SequenceFile(fwd, rev, fwd_idx=None, rev_idx=None):
     if fwd_idx and rev_idx:
@@ -8,7 +12,47 @@ def SequenceFile(fwd, rev, fwd_idx=None, rev_idx=None):
         return NoIndexFastqSequenceFile(fwd, rev)
 
 
-class IndexFastqSequenceFile(object):
+def _batched(iterable, n):
+    """Yield ``n`` sized batches from *iterable*."""
+
+    batch = []
+    for item in iterable:
+        batch.append(item)
+        if len(batch) == n:
+            yield batch
+            batch = []
+    if batch:
+        yield batch
+
+
+class _ParallelDemultiplexer(object):
+    def _demultiplex_parallel(
+        self,
+        record_iter,
+        process_record,
+        writer,
+        max_workers=None,
+        batch_size=1000,
+    ):
+        if batch_size < 1:
+            raise ValueError("batch_size must be >= 1")
+
+        if max_workers is None:
+            max_workers = os.cpu_count() or 1
+
+        def process_batch(batch):
+            return [process_record(record) for record in batch]
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            for processed_batch in executor.map(
+                process_batch,
+                _batched(record_iter, batch_size),
+            ):
+                for read, sample in processed_batch:
+                    writer.write(read, sample)
+
+
+class IndexFastqSequenceFile(_ParallelDemultiplexer):
     """Illumina data, 3 file format: forward, reverse, index.
 
     This format is used by the MiSeq but not supported by newer HiSeq
@@ -20,18 +64,24 @@ class IndexFastqSequenceFile(object):
         self.reverse_file = rev
         self.index_file = idx
 
-    def demultiplex(self, assigner, writer):
+    def demultiplex(self, assigner, writer, max_workers=None, batch_size=1000):
         idxs = (FastqRead(x) for x in parse_fastq(self.index_file))
         fwds = (FastqRead(x) for x in parse_fastq(self.forward_file))
         revs = (FastqRead(x) for x in parse_fastq(self.reverse_file))
-        for idx, fwd, rev in zip(idxs, fwds, revs):
+
+        def process(record):
+            idx, fwd, rev = record
             bc = idx.seq
             sample = assigner.assign(bc)
-            writer.write((fwd, rev), sample)
+            return (fwd, rev), sample
+
+        self._demultiplex_parallel(
+            zip(idxs, fwds, revs), process, writer, max_workers, batch_size
+        )
         return assigner.read_counts
 
 
-class DualIndexFastqSequenceFile(object):
+class DualIndexFastqSequenceFile(_ParallelDemultiplexer):
     """Illumina data, 4 file format: forward, reverse, fwd index, rev index.
 
     This format is used by the MiSeq
@@ -43,19 +93,29 @@ class DualIndexFastqSequenceFile(object):
         self.forward_index_file = fwd_idx
         self.reverse_index_file = rev_idx
 
-    def demultiplex(self, assigner, writer):
+    def demultiplex(self, assigner, writer, max_workers=None, batch_size=1000):
         fwd_idxs = (FastqRead(x) for x in parse_fastq(self.forward_index_file))
         rev_idxs = (FastqRead(x) for x in parse_fastq(self.reverse_index_file))
         fwds = (FastqRead(x) for x in parse_fastq(self.forward_file))
         revs = (FastqRead(x) for x in parse_fastq(self.reverse_file))
-        for fidx, ridx, fwd, rev in zip(fwd_idxs, rev_idxs, fwds, revs):
+
+        def process(record):
+            fidx, ridx, fwd, rev = record
             bc = fidx.seq + ridx.seq
             sample = assigner.assign(bc)
-            writer.write((fwd, rev), sample)
+            return (fwd, rev), sample
+
+        self._demultiplex_parallel(
+            zip(fwd_idxs, rev_idxs, fwds, revs),
+            process,
+            writer,
+            max_workers,
+            batch_size,
+        )
         return assigner.read_counts
 
 
-class NoIndexFastqSequenceFile(object):
+class NoIndexFastqSequenceFile(_ParallelDemultiplexer):
     """Illumina data, 2 file format: forward, reverse.
 
     This format is used by the newer HiSeq machines.  Barcodes are
@@ -66,13 +126,19 @@ class NoIndexFastqSequenceFile(object):
         self.forward_file = fwd
         self.reverse_file = rev
 
-    def demultiplex(self, assigner, writer):
+    def demultiplex(self, assigner, writer, max_workers=None, batch_size=1000):
         fwds = (FastqRead(x) for x in parse_fastq(self.forward_file))
         revs = (FastqRead(x) for x in parse_fastq(self.reverse_file))
-        for fwd, rev in zip(fwds, revs):
+
+        def process(record):
+            fwd, rev = record
             bc = self._parse_barcode(fwd.desc)
             sample = assigner.assign(bc)
-            writer.write((fwd, rev), sample)
+            return (fwd, rev), sample
+
+        self._demultiplex_parallel(
+            zip(fwds, revs), process, writer, max_workers, batch_size
+        )
         return assigner.read_counts
 
     @staticmethod
