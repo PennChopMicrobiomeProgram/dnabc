@@ -12,19 +12,6 @@ def SequenceFile(fwd, rev, fwd_idx=None, rev_idx=None):
         return NoIndexFastqSequenceFile(fwd, rev)
 
 
-def _batched(iterable, n):
-    """Yield ``n`` sized batches from *iterable*."""
-
-    batch = []
-    for item in iterable:
-        batch.append(item)
-        if len(batch) == n:
-            yield batch
-            batch = []
-    if batch:
-        yield batch
-
-
 class _ParallelDemultiplexer(object):
     def _demultiplex_parallel(
         self,
@@ -40,16 +27,11 @@ class _ParallelDemultiplexer(object):
         if max_workers is None:
             max_workers = os.cpu_count() or 1
 
-        def process_batch(batch):
-            return [process_record(record) for record in batch]
-
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            for processed_batch in executor.map(
-                process_batch,
-                _batched(record_iter, batch_size),
+            for read, sample in executor.map(
+                process_record, record_iter, chunksize=batch_size
             ):
-                for read, sample in processed_batch:
-                    writer.write(read, sample)
+                writer.write(read, sample)
 
 
 class IndexFastqSequenceFile(_ParallelDemultiplexer):
