@@ -1,6 +1,5 @@
 import collections
 
-
 SampleBarcode = collections.namedtuple("SampleBarcode", ["name", "barcode"])
 
 

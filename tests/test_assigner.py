@@ -7,7 +7,6 @@ from src.dnabc.assigner import (
     reverse_complement,
 )
 
-
 MockRead = namedtuple("Read", "seq")
 MockSample = namedtuple("Sample", "name barcode")
 
