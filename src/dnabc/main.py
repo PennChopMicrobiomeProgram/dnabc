@@ -99,13 +99,3 @@ def open_maybe_gzip(fp, allow_none=False):
         return gzip.open(fp, "rt")
     else:
         return open(fp, "rt")
-
-
-def maybe_gzip(f):
-    fname = f.name
-    if fname.endswith(".gz"):
-        # Seems to be fewer problems if I just close the file obj and
-        # re-open with gzip
-        f.close()
-        return gzip.open(fname, "rt")
-    return f
