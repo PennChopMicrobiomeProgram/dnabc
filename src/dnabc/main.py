@@ -68,8 +68,8 @@ def main(argv=None):
 
     r1 = open_maybe_gzip(args.r1_fastq)
     r2 = open_maybe_gzip(args.r2_fastq)
-    i1 = open_maybe_gzip(args.i1_fastq, allow_none=True)
-    i2 = open_maybe_gzip(args.i2_fastq, allow_none=True)
+    i1 = open_maybe_gzip(args.i1_fastq, required=False)
+    i2 = open_maybe_gzip(args.i2_fastq, required=False)
 
     if not os.path.exists(args.output_dir):
         os.mkdir(args.output_dir)
@@ -92,8 +92,8 @@ def main(argv=None):
             writer.write_unassigned_barcodes(f, assigner.most_common_unassigned())
 
 
-def open_maybe_gzip(fp, allow_none=False):
-    if (fp is None) and allow_none:
+def open_maybe_gzip(fp, required=True):
+    if (fp is None) and (not required):
         return None
     elif fp.endswith(".gz"):
         return gzip.open(fp, "rt")
