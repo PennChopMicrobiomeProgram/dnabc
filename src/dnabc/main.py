@@ -11,15 +11,9 @@ from .assigner import BarcodeAssigner
 
 def main(argv=None):
     p = argparse.ArgumentParser()
-    p.add_argument(
-        "barcode_file", help="Barcode file (TSV format)"
-    )
-    p.add_argument(
-        "r1_fastq", help="Forward reads FASTQ file"
-    )
-    p.add_argument(
-        "r2_fastq", help="Reverse reads FASTQ file"
-    )
+    p.add_argument("barcode_file", help="Barcode file (TSV format)")
+    p.add_argument("r1_fastq", help="Forward reads FASTQ file")
+    p.add_argument("r2_fastq", help="Reverse reads FASTQ file")
     p.add_argument(
         "--i1-fastq",
         help=(
@@ -74,8 +68,8 @@ def main(argv=None):
 
     r1 = open_maybe_gzip(args.r1_fastq)
     r2 = open_maybe_gzip(args.r2_fastq)
-    i1 = open_maybe_gzip(args.i1_fastq, allow_none = True)
-    i2 = open_maybe_gzip(args.i2_fastq, allow_none = True)
+    i1 = open_maybe_gzip(args.i1_fastq, allow_none=True)
+    i2 = open_maybe_gzip(args.i2_fastq, allow_none=True)
 
     if not os.path.exists(args.output_dir):
         os.mkdir(args.output_dir)
@@ -95,10 +89,10 @@ def main(argv=None):
             writer.write_read_counts(f, assigner.read_counts)
     if args.unassigned_barcodes_file:
         with open(args.unassigned_barcodes_file, "w") as f:
-            writer.write_unassigned_barcodes(f , assigner.most_common_unassigned())
+            writer.write_unassigned_barcodes(f, assigner.most_common_unassigned())
 
 
-def open_maybe_gzip(fp, allow_none = False):
+def open_maybe_gzip(fp, allow_none=False):
     if (fp is None) and allow_none:
         return None
     elif fp.endswith(".gz"):
