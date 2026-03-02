@@ -25,6 +25,16 @@ docker pull chopmicrobiome/dnabc:latest
 docker run --rm --name dnabc dnabc dnabc -h
 ```
 
+### Apptainer/Singularity
+
+```bash
+singularity build dnabc_X_Y_Z.sif docker://ctbushman/dnabc:X.Y.Z
+singularity run dnabc_X_Y_Z.sif dnabc -h
+singularity exec --bind /path/to/data:/data --bind /path/to/output:/output dnabc_X_Y_Z.sif /data/barcodes.tsv /data/Undetermined_S0_R1_001.fastq.gz /data/Undetermined_S0_R2_001.fastq.gz --output-dir /output/demux --mismatches 0 --total-reads-file /output/total_reads.tsv --unassigned-barcodes-file /output/unassigned.tsv
+```
+
+(Replacing "X.Y.Z" with your desired tag like "0.1.0" or "latest" and replacing "singularity" with "apptainer" depending on your system)
+
 ## Usage
 
 The Python library provides a command-line program, `dnabc`. The

@@ -1,5 +1,6 @@
 import itertools
 from collections import Counter
+from threading import Lock
 
 
 class BarcodeAssigner(object):
@@ -18,6 +19,7 @@ class BarcodeAssigner(object):
         self.read_counts = dict((s.name, 0) for s in self.samples)
         self.read_counts["unassigned"] = 0
         self.unassigned_counts = Counter()
+        self._lock = Lock()
         self._init_hash()
 
     def _init_hash(self):
@@ -72,11 +74,12 @@ class BarcodeAssigner(object):
 
     def assign(self, seq):
         sample = self._barcodes.get(seq)
-        if sample is not None:
-            self.read_counts[sample.name] += 1
-        else:
-            self.read_counts["unassigned"] += 1
-            self.unassigned_counts[seq] += 1
+        with self._lock:
+            if sample is not None:
+                self.read_counts[sample.name] += 1
+            else:
+                self.read_counts["unassigned"] += 1
+                self.unassigned_counts[seq] += 1
         return sample
 
     def most_common_unassigned(self, n=100):
