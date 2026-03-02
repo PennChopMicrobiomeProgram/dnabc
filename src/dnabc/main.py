@@ -11,18 +11,11 @@ from .assigner import BarcodeAssigner
 
 def main(argv=None):
     p = argparse.ArgumentParser()
-    p.add_argument(
-        "barcode_file", type=argparse.FileType("r"), help="Barcode file (TSV format)"
-    )
-    p.add_argument(
-        "r1_fastq", type=argparse.FileType("r"), help="Forward reads FASTQ file"
-    )
-    p.add_argument(
-        "r2_fastq", type=argparse.FileType("r"), help="Reverse reads FASTQ file"
-    )
+    p.add_argument("barcode_file", help="Barcode file (TSV format)")
+    p.add_argument("r1_fastq", help="Forward reads FASTQ file")
+    p.add_argument("r2_fastq", help="Reverse reads FASTQ file")
     p.add_argument(
         "--i1-fastq",
-        type=argparse.FileType("r"),
         help=(
             "Forward index FASTQ file. If this file is not provided, the "
             "index reads will be taken from the description lines in the "
@@ -31,7 +24,6 @@ def main(argv=None):
     )
     p.add_argument(
         "--i2-fastq",
-        type=argparse.FileType("r"),
         help=(
             "Reverse index FASTQ file. If this file is provided, the "
             "forward index file must be provided as well. The forward and "
@@ -58,28 +50,26 @@ def main(argv=None):
     )
     p.add_argument(
         "--manifest-file",
-        type=argparse.FileType("w"),
         help=("Write manifest file for QIIME2"),
     )
     p.add_argument(
         "--total-reads-file",
-        type=argparse.FileType("w"),
         help=("Write TSV table of total read counts"),
     )
     p.add_argument(
         "--unassigned-barcodes-file",
-        type=argparse.FileType("w"),
         help=("Write TSV table of unassigned barcode sequences"),
     )
     p.add_argument("-v", "--version", action="version", version=str(__version__))
     args = p.parse_args(argv)
 
-    samples = load_sample_barcodes(args.barcode_file)
+    with open(args.barcode_file) as f:
+        samples = load_sample_barcodes(f)
 
-    r1 = maybe_gzip(args.r1_fastq)
-    r2 = maybe_gzip(args.r2_fastq)
-    i1 = maybe_gzip(args.i1_fastq) if (args.i1_fastq is not None) else None
-    i2 = maybe_gzip(args.i2_fastq) if (args.i2_fastq is not None) else None
+    r1 = open_maybe_gzip(args.r1_fastq)
+    r2 = open_maybe_gzip(args.r2_fastq)
+    i1 = open_maybe_gzip(args.i1_fastq, required=False)
+    i2 = open_maybe_gzip(args.i2_fastq, required=False)
 
     if not os.path.exists(args.output_dir):
         os.mkdir(args.output_dir)
@@ -92,20 +82,20 @@ def main(argv=None):
     seq_file.demultiplex(assigner, writer)
 
     if args.manifest_file:
-        writer.write_qiime2_manifest(args.manifest_file)
+        with open(args.manifest_file, "w") as f:
+            writer.write_qiime2_manifest(f)
     if args.total_reads_file:
-        writer.write_read_counts(args.total_reads_file, assigner.read_counts)
+        with open(args.total_reads_file, "w") as f:
+            writer.write_read_counts(f, assigner.read_counts)
     if args.unassigned_barcodes_file:
-        writer.write_unassigned_barcodes(
-            args.unassigned_barcodes_file, assigner.most_common_unassigned()
-        )
+        with open(args.unassigned_barcodes_file, "w") as f:
+            writer.write_unassigned_barcodes(f, assigner.most_common_unassigned())
 
 
-def maybe_gzip(f):
-    fname = f.name
-    if fname.endswith(".gz"):
-        # Seems to be fewer problems if I just close the file obj and
-        # re-open with gzip
-        f.close()
-        return gzip.open(fname, "rt")
-    return f
+def open_maybe_gzip(fp, required=True):
+    if (fp is None) and (not required):
+        return None
+    elif fp.endswith(".gz"):
+        return gzip.open(fp, "rt")
+    else:
+        return open(fp, "rt")
