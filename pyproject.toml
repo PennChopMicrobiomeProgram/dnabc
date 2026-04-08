@@ -1,10 +1,10 @@
 [project]
 name = "dnabc"
-dynamic = ["version"]
+dynamic = [ "version" ]
 description = "Demultiplex pooled DNA sequencing data"
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "GPL-2.0-or-later"}
+license = { text = "GPL-2.0-or-later" }
 
 authors = [
   { name = "Kyle Bittinger", email = "kylebittinger@gmail.com" },
@@ -43,9 +43,9 @@ dev = [
 "split_samplelanes" = "dnabc.split_samplelanes:main"
 
 [build-system]
-requires = ["setuptools>=61.0.0", "wheel"]
+requires = [ "setuptools>=61.0.0", "wheel" ]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.dynamic]
-version = {attr = "dnabc.__version__"}
+version = { attr = "dnabc.__version__" }
 
