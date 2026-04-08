@@ -7,11 +7,12 @@ requires-python = ">=3.10"
 license = {text = "GPL-2.0-or-later"}
 
 authors = [
-  {name = "Kyle Bittinger", email = "kylebittinger@gmail.com"}
+  { name = "Kyle Bittinger", email = "kylebittinger@gmail.com" },
+  { name = "Charlie Bushman", email = "ctbushman@gmail.com" },
 ]
 
 maintainers = [
-  {name = "Charlie Bushman", email = "ctbushman@gmail.com" }
+  { name = "Kyle Bittinger", email = "kylebittinger@gmail.com" },
 ]
 
 classifiers = [
