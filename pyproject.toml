@@ -1,18 +1,18 @@
 [project]
-name = "dnabc"  # Required
+name = "dnabc"
 dynamic = ["version"]
-description = "Demultiplex pooled DNA sequencing data"  # Optional
-readme = "README.md" # Optional
+description = "Demultiplex pooled DNA sequencing data"
+readme = "README.md"
 requires-python = ">=3.7"
-#license = {file = "LICENSE.txt"}  # Optional
-#keywords = ["sample", "setuptools", "development"]  # Optional
+#license = {file = "LICENSE.txt"}
+#keywords = ["sample", "setuptools", "development"]
 
 authors = [
-  {name = "Kyle Bittinger", email = "kylebittinger@gmail.com"} # Optional
+  {name = "Kyle Bittinger", email = "kylebittinger@gmail.com"}
 ]
 
 maintainers = [
-  {name = "Charlie Bushman", email = "ctbushman@gmail.com" } # Optional
+  {name = "Charlie Bushman", email = "ctbushman@gmail.com" }
 ]
 
 classifiers = [
@@ -38,7 +38,7 @@ dev = [
 [project.urls]
 "homepage" = "https://github.com/PennChopMicrobiomeProgram/dnabc"
 
-[project.scripts]  # Optional
+[project.scripts]
 "dnabc" = "dnabc.main:main"
 "split_samplelanes" = "dnabc.split_samplelanes:main"
 
