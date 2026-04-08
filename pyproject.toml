@@ -3,9 +3,8 @@ name = "dnabc"
 dynamic = ["version"]
 description = "Demultiplex pooled DNA sequencing data"
 readme = "README.md"
-requires-python = ">=3.7"
-#license = {file = "LICENSE.txt"}
-#keywords = ["sample", "setuptools", "development"]
+requires-python = ">=3.10"
+license = {text = "GPL-2.0-or-later"}
 
 authors = [
   {name = "Kyle Bittinger", email = "kylebittinger@gmail.com"}
