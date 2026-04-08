@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dnabc"
-dynamic = [ "version" ]
+version = "0.1.2.dev1"
 description = "Demultiplex pooled DNA sequencing data"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -45,7 +45,3 @@ dev = [
 [project.scripts]
 "dnabc" = "dnabc.main:main"
 "split_samplelanes" = "dnabc.split_samplelanes:main"
-
-[tool.setuptools.dynamic]
-version = { attr = "dnabc.__version__" }
-
