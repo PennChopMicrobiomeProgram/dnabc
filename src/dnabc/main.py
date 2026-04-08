@@ -8,7 +8,6 @@ from .sample import load_sample_barcodes
 from .seqfile import SequenceFile
 from .assigner import BarcodeAssigner
 
-
 __version__ = importlib.metadata.version("dnabc")
 
 
