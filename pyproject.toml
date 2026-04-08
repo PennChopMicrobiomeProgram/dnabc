@@ -35,12 +35,8 @@ dev = [
     "black",
 ]
 
-[project.urls]  # Optional
-"Homepage" = "https://github.com/PennChopMicrobiomeProgram/dnabc"
-"Bug Reports" = "https://github.com/PennChopMicrobiomeProgram/dnabc/issues"
-#"Funding" = "https://donate.pypi.org"
-#"Say Thanks!" = "http://saythanks.io/to/example"
-"Source" = "https://github.com/PennChopMicrobiomeProgram/dnabc"
+[project.urls]
+"homepage" = "https://github.com/PennChopMicrobiomeProgram/dnabc"
 
 [project.scripts]  # Optional
 "dnabc" = "dnabc.main:main"
